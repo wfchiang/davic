@@ -7,6 +7,7 @@ import (
 
 const (
 	OPT_WEBCALL = "OPT_WEBCALL"
+	OPT_OBJ_FIELD_READ = "OPT_OBJ_FIELD_READ"
 )
 
 /*
