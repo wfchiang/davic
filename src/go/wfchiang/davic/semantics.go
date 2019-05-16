@@ -25,6 +25,8 @@ func IsType (type_name string, value interface{}) bool {
 		_, is_type = value.(float64)
 	} else if (strings.Compare(TYPE_STRING, type_name) == 0) {
 		_, is_type = value.(string)
+	} else if (strings.Compare(TYPE_OBJ, type_name) == 0) {
+		_, is_type = value.(map[string]interface{})
 	} else {
 		panic("Unknown type: " + type_name)
 	}

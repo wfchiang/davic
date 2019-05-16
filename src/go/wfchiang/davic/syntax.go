@@ -11,39 +11,36 @@ const (
 )
 
 /*
-JNode
+Json -- as a map[string]interface{}
 */
-type JNode struct {
-	key_value map[string]interface{}
-}
-
-func (jnode *JNode) InterpretBytes (in_bytes []byte) {
-	json.Unmarshal(in_bytes, &jnode.key_value)
-}
-
-func (jnode *JNode) GetKeys () []string {
+func GetObjKeys (obj map[string]interface{}) []string {
 	var keys []string
-	for k, _ := range jnode.key_value {
+	for k, _ := range obj {
 		keys = append(keys, k)
 	}
 	return keys
 }
 
-func (jnode *JNode) GetValue (key []string) interface{} {
-	var kv map[string]interface{} = jnode.key_value
-	var retv interface{} = jnode.key_value
-
+func GetObjValue (obj map[string]interface{}, key []string) interface{} {
+	var kv map[string]interface{} = obj
+	var retv interface{} = nil
+	
 	for i, k := range key {
-		retv = kv[k]
 		if (i == (len(key)-1)) {
+			retv = kv[k]
 			break
 		}
-		kv = retv.(map[string]interface{})
+		kv = kv[k].(map[string]interface{})
 	}
 
 	return retv
 }
 
+func CreateObjFromBytes (byte_array []byte) map[string]interface{} {
+	var new_jnode map[string]interface{}
+	json.Unmarshal(byte_array, &new_jnode)
+	return new_jnode
+}
 
 /*
 Expression 
