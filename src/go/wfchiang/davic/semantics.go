@@ -12,8 +12,11 @@ const (
 	TYPE_OBJ    = "TYPE_OBJ" 
 )
 
-/* 
+/*********
 Validation Core 
+*********/
+/*
+Type predicates
 */ 
 func IsType (type_name string, value interface{}) bool {
 	is_type := false
@@ -32,4 +35,24 @@ func IsType (type_name string, value interface{}) bool {
 	}
 
 	return is_type
+}
+
+/*
+Validation function 
+*/ 
+func ValidateType (key []string, type_name string, value interface{}) ValidationResult {
+	vResult := false
+	vComments := []string{}
+
+	if (ContainsString([]string{TYPE_BOOL, TYPE_FLOAT, TYPE_STRING, TYPE_OBJ}, type_name)) {
+		vResult = IsType(type_name, value)
+		if (!vResult) {
+			vComments = append(vComments, MakeValidationComment(key, "Invalid type " + type_name))
+		}
+	} else {
+		vResult = false 
+		vComments = append(vComments, MakeValidationComment(key, "Unknown type " + type_name))
+	}
+
+	return ValidationResult{IsValid:vResult, Comments:vComments}
 }

@@ -5,11 +5,17 @@ import (
 	"testing"
 )
 
+/********* 
+Sample Data
+*********/
 func sampleJsonBytes0 () []byte {
 	return []byte("{\"keyB\":false,\"keyI\":123,\"keyF\":1.23,\"keyS\":\"valS\",\"keyO\":{\"keykeyB\":true}}")
 	// return []byte("{\"keyB\":false,\"keyI\":123,\"keyF\":1.23,\"keyS\":\"valS\",\"keyO\":{\"keykeyI\":456,\"keykeyO\":{\"keykeykeyI\",789}}}")
 }
 
+/********
+Testing utilities
+*********/
 func simpleIsViolation (type_string string, expected interface{}, actual interface{}) bool {
 	if (!IsType(type_string, expected)) {
 		return false
@@ -26,6 +32,9 @@ func simpleRecover (t *testing.T) {
 	}
 }
 
+/********
+Tests for semantics.go
+*********/
 func TestIsType (t *testing.T) {
 	defer simpleRecover(t) 
 
@@ -70,6 +79,55 @@ func TestIsType (t *testing.T) {
 	}
 }
 
+func TestValidateType (t *testing.T) {
+	defer simpleRecover(t)
+	
+	key := []string{"abc", "xyz"}
+
+	if is_type := ValidateType(key, TYPE_BOOL, false); !is_type.IsValid {
+		t.Error("")
+	}
+
+	if is_type := ValidateType(key, TYPE_BOOL, 1); is_type.IsValid {
+		t.Error("")
+	}
+
+	if is_type := ValidateType(key, TYPE_INT, false); is_type.IsValid {
+		t.Error("")
+	}
+
+	if is_type := ValidateType(key, TYPE_INT, 1); !is_type.IsValid {
+		t.Error("")
+	}
+
+	if is_type := ValidateType(key, TYPE_FLOAT, 1); is_type.IsValid {
+		t.Error("")
+	}
+
+	if is_type := ValidateType(key, TYPE_FLOAT, 1.1); !is_type.IsValid {
+		t.Error("")
+	}
+
+	if is_type := ValidateType(key, TYPE_STRING, 1); is_type.IsValid {
+		t.Error("")
+	}
+	
+	if is_type := ValidateType(key, TYPE_STRING, "hello"); !is_type.IsValid {
+		t.Error("")
+	}
+
+	if is_type := ValidateType(key, TYPE_OBJ, 1); is_type.IsValid {
+		t.Error("")
+	}
+
+	if is_type := ValidateType(key, TYPE_OBJ, CreateObjFromBytes(sampleJsonBytes0())); !is_type.IsValid {
+		t.Error("")
+	}
+}
+
+/********
+Tests for syntax.go
+********/
 func TestGetValue0 (t *testing.T) {
 	defer simpleRecover(t) 
 
@@ -99,6 +157,64 @@ func TestGetValue0 (t *testing.T) {
 	}
 
 	if val := GetObjValue(obj,[]string{"keyO", "keykeyB"}); simpleIsViolation(TYPE_BOOL, true, val) {
+		t.Error("")
+	}
+}
+
+func TestMergeValidationResults (t *testing.T) {
+	defer simpleRecover(t)
+
+	var result0 ValidationResult
+	result0.IsValid = true
+	result0.Comments = []string{}
+
+	var result1 ValidationResult 
+	result1.IsValid = true 
+	result1.Comments = []string{"Reason 1.0"}
+
+	var result2 ValidationResult
+	result2.IsValid = false 
+	result2.Comments = []string{"Reason 2.0", "Reason 2.1"}
+
+	result01 := MergeValidationResults(result0, result1)
+	result12 := MergeValidationResults(result1, result2)
+
+	if (!result01.IsValid) {
+		t.Error("")
+	}
+
+	if (len(result01.Comments) != 1) {
+		t.Error("")
+	}
+
+	if (result01.Comments[0] != "Reason 1.0") {
+		t.Error("")
+	}
+
+	if (result12.IsValid) {
+		t.Error("")
+	}
+
+	if (len(result12.Comments) != 3) {
+		t.Error("")
+	}
+
+	if (result12.Comments[0] != "Reason 1.0" || result12.Comments[1] != "Reason 2.0" || result12.Comments[2] != "Reason 2.1") {
+		t.Error("")
+	}
+}
+
+/********
+Tests for utils.go
+********/
+func TestContainsString (t *testing.T) {
+	string_array := []string{"abc", "xyz"}
+
+	if (!ContainsString(string_array, "abc")) {
+		t.Error("")
+	}
+
+	if (ContainsString(string_array, "cba")) {
 		t.Error("")
 	}
 }
