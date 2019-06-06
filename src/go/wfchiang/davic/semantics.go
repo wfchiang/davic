@@ -1,58 +1,48 @@
 package davic 
 
 import (
+	"fmt"
 	"strings"
-)
-
-const (
-	TYPE_BOOL   = "TYPE_BOOL"
-	TYPE_INT    = "TYPE_INT"
-	TYPE_FLOAT  = "TYPE_FLOAT" 
-	TYPE_STRING = "TYPE_STRING"
-	TYPE_OBJ    = "TYPE_OBJ" 
 )
 
 /*********
 Validation Core 
 *********/
-/*
-Type predicates
-*/ 
-func IsType (type_name string, value interface{}) bool {
-	is_type := false
-	if (strings.Compare(TYPE_BOOL, type_name) == 0) {
-		_, is_type = value.(bool)
-	} else if (strings.Compare(TYPE_INT, type_name) == 0) {
-		_, is_type = value.(int)
-	} else if (strings.Compare(TYPE_FLOAT, type_name) == 0) {
-		_, is_type = value.(float64)
-	} else if (strings.Compare(TYPE_STRING, type_name) == 0) {
-		_, is_type = value.(string)
-	} else if (strings.Compare(TYPE_OBJ, type_name) == 0) {
-		_, is_type = value.(map[string]interface{})
-	} else {
-		panic("Unknown type: " + type_name)
+
+
+/********
+Expression evaluation
+********/ 
+func EvalExpr (in_expr interface{}) interface{} {
+	expr, ok := in_expr.([]interface{})
+	if (!ok) {
+		return in_expr
+	}
+	
+	if (!IsOperation(expr)) {
+		return expr
 	}
 
-	return is_type
-}
+	opt, ok := expr[1].(string)
+	if (!ok) {
+		panic("Operator (" + fmt.Sprintf("%v", opt) + ")is not a string")
+	}
 
-/*
-Validation function 
-*/ 
-func ValidateType (key []string, type_name string, value interface{}) ValidationResult {
-	vResult := false
-	vComments := []string{}
+	if (strings.Compare(OPT_RELATION_EQ, opt) == 0) {
+		if (!IsBinaryExpr(expr)) {
+			panic("Invalid operation: " + OPT_RELATION_EQ + " : " + fmt.Sprintf("%v", expr))
+		}
+		lhs := expr[2]
+		rhs := expr[3]
 
-	if (ContainsString([]string{TYPE_BOOL, TYPE_FLOAT, TYPE_STRING, TYPE_OBJ}, type_name)) {
-		vResult = IsType(type_name, value)
-		if (!vResult) {
-			vComments = append(vComments, MakeValidationComment(key, "Invalid type " + type_name))
+		if (IsType(TYPE_BOOL, lhs) && IsType(TYPE_BOOL, rhs)) {
+			return (lhs == rhs)
+		} else if (IsType(TYPE_NUMBER, lhs) && IsType(TYPE_NUMBER, rhs)) {
+			return (lhs == rhs)
+		} else {
+			panic("Unsupport operand type for operation " + OPT_RELATION_EQ)
 		}
 	} else {
-		vResult = false 
-		vComments = append(vComments, MakeValidationComment(key, "Unknown type " + type_name))
+		panic("Invalid operator: " + opt) 
 	}
-
-	return ValidationResult{IsValid:vResult, Comments:vComments}
 }

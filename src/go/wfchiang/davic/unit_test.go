@@ -79,48 +79,26 @@ func TestIsType (t *testing.T) {
 	}
 }
 
-func TestValidateType (t *testing.T) {
-	defer simpleRecover(t)
-	
-	key := []string{"abc", "xyz"}
+func TestEvalExpr0 (t *testing.T) {
+	expr := 1
 
-	if is_type := ValidateType(key, TYPE_BOOL, false); !is_type.IsValid {
+	eval_result := EvalExpr(expr)
+
+	if (expr != eval_result) {
+		t.Error("")
+	}
+}
+
+func TestEvalExpr1 (t *testing.T) {
+	expr_0 := []interface{}{SYMBOL_OPT_MARK, OPT_RELATION_EQ, 1, 1}
+	eval_result_0 := EvalExpr(expr_0) 
+	if (eval_result_0 != true) {
 		t.Error("")
 	}
 
-	if is_type := ValidateType(key, TYPE_BOOL, 1); is_type.IsValid {
-		t.Error("")
-	}
-
-	if is_type := ValidateType(key, TYPE_INT, false); is_type.IsValid {
-		t.Error("")
-	}
-
-	if is_type := ValidateType(key, TYPE_INT, 1); !is_type.IsValid {
-		t.Error("")
-	}
-
-	if is_type := ValidateType(key, TYPE_FLOAT, 1); is_type.IsValid {
-		t.Error("")
-	}
-
-	if is_type := ValidateType(key, TYPE_FLOAT, 1.1); !is_type.IsValid {
-		t.Error("")
-	}
-
-	if is_type := ValidateType(key, TYPE_STRING, 1); is_type.IsValid {
-		t.Error("")
-	}
-	
-	if is_type := ValidateType(key, TYPE_STRING, "hello"); !is_type.IsValid {
-		t.Error("")
-	}
-
-	if is_type := ValidateType(key, TYPE_OBJ, 1); is_type.IsValid {
-		t.Error("")
-	}
-
-	if is_type := ValidateType(key, TYPE_OBJ, CreateObjFromBytes(sampleJsonBytes0())); !is_type.IsValid {
+	expr_1 := []interface{}{SYMBOL_OPT_MARK, OPT_RELATION_EQ, 1, 2}
+	eval_result_1 := EvalExpr(expr_1) 
+	if (eval_result_1 != false) {
 		t.Error("")
 	}
 }
@@ -128,6 +106,47 @@ func TestValidateType (t *testing.T) {
 /********
 Tests for syntax.go
 ********/
+func TestParseRefString0 (t *testing.T) {
+	defer simpleRecover(t)
+
+	key0 := "abc"
+	key1 := "xyz"
+	key_string := SYMBOL_REF_MARK + SYMBOL_REF_SEPARATOR + key0 + SYMBOL_REF_SEPARATOR + key1
+
+	keys := ParseRefString(key_string) 
+
+	if (len(keys) != 2) {
+		t.Error("")
+	}
+
+	if (simpleIsViolation(TYPE_STRING, key0, keys[0])) {
+		t.Error("")
+	}
+
+	if (simpleIsViolation(TYPE_STRING, key1, keys[1])) {
+		t.Error("")
+	}
+}
+
+func TestIsRef0 (t *testing.T) {
+	good_ref_0 := []string{SYMBOL_REF_MARK, "abc"}
+	good_ref_1 := []string{SYMBOL_REF_MARK}
+
+	bad_ref_0 := []string{"abc"}
+
+	if (simpleIsViolation(TYPE_BOOL, true, IsRef(good_ref_0))) {
+		t.Error("")
+	}
+
+	if (simpleIsViolation(TYPE_BOOL, true, IsRef(good_ref_1))) {
+		t.Error("")
+	}
+
+	if (simpleIsViolation(TYPE_BOOL, false, IsRef(bad_ref_0))) {
+		t.Error("")
+	}
+}
+
 func TestGetValue0 (t *testing.T) {
 	defer simpleRecover(t) 
 
