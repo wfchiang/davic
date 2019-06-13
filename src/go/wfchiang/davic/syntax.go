@@ -1,7 +1,7 @@
 package davic
 
 import (
-//	"fmt"
+	"fmt"
 	"strings"
 	"encoding/json"
 )
@@ -12,9 +12,8 @@ const (
 	SYMBOL_REF_MARK = "#"
 	SYMBOL_REF_SEPARATOR = "/"
 
+	TYPE_NULL   = "TYPE_NULL"
 	TYPE_BOOL   = "TYPE_BOOL"
-	TYPE_INT    = "TYPE_INT"
-	TYPE_FLOAT  = "TYPE_FLOAT" 
 	TYPE_NUMBER = "TYPE_NUMBER"
 	TYPE_STRING = "TYPE_STRING"
 	TYPE_OBJ    = "TYPE_OBJ"
@@ -29,20 +28,19 @@ Type predicates
 */ 
 func IsType (type_name string, value interface{}) bool {
 	is_type := false
-	if (strings.Compare(TYPE_BOOL, type_name) == 0) {
+	if (strings.Compare(TYPE_NULL, type_name) == 0) {
+		is_type = (value == nil)
+	} else if (strings.Compare(TYPE_BOOL, type_name) == 0) {
 		_, is_type = value.(bool)
 	} else if (strings.Compare(TYPE_NUMBER, type_name) == 0) {
-		return (IsType(TYPE_INT, value) || IsType(TYPE_FLOAT, value))
-	} else if (strings.Compare(TYPE_INT, type_name) == 0) {
-		_, is_type = value.(int)
-	} else if (strings.Compare(TYPE_FLOAT, type_name) == 0) {
 		_, is_type = value.(float64)
 	} else if (strings.Compare(TYPE_STRING, type_name) == 0) {
 		_, is_type = value.(string)
 	} else if (strings.Compare(TYPE_OBJ, type_name) == 0) {
 		_, is_type = value.(map[string]interface{})
 	} else {
-		panic("Unknown type: " + type_name)
+		error_message := fmt.Sprintf("Unknown type (%v) of value %v", type_name, value)
+		panic(error_message)
 	}
 
 	return is_type
