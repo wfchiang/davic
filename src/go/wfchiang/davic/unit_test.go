@@ -12,6 +12,12 @@ func sampleJsonBytes0 () []byte {
 	return []byte("{\"keyN\":null,\"keyB\":false,\"keyI\":123,\"keyF\":1.23,\"keyS\":\"valS\",\"keyO\":{\"keykeyB\":true}}")
 }
 
+func sampleEnvironment0 () Environment {
+	obj0 := CreateObjFromBytes(sampleJsonBytes0())
+	var env0 = Environment{Store:obj0}
+	return env0
+}
+
 /********
 Testing utilities
 *********/
@@ -219,6 +225,29 @@ func TestMergeValidationResults (t *testing.T) {
 	}
 
 	if (result12.Comments[0] != "Reason 1.0" || result12.Comments[1] != "Reason 2.0" || result12.Comments[2] != "Reason 2.1") {
+		t.Error("")
+	}
+}
+
+func TestEnvironmentDeref (t *testing.T) {
+	defer simpleRecover(t)
+
+	obj0 := CreateObjFromBytes(sampleJsonBytes0())
+	env0 := sampleEnvironment0()
+
+	good_ref_0 := []string{SYMBOL_REF_MARK}
+	good_ref_1 := []string{SYMBOL_REF_MARK, "keyB"}
+	good_ref_2 := []string{SYMBOL_REF_MARK, "keyF"}
+
+	if val := env0.Deref(good_ref_0) ; simpleIsViolation(TYPE_BOOL, true, IsType(TYPE_OBJ, val)) {
+		t.Error("")
+	}
+	
+	if val := env0.Deref(good_ref_1) ; simpleIsViolation(TYPE_BOOL, obj0[good_ref_1[1]], val) {
+		t.Error("")
+	}
+
+	if val := env0.Deref(good_ref_2) ; simpleIsViolation(TYPE_NUMBER, obj0[good_ref_2[1]], val) {
 		t.Error("")
 	}
 }

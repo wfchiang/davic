@@ -78,8 +78,16 @@ func GetObjKeys (obj map[string]interface{}) []string {
 	return keys
 }
 
-func GetObjValue (obj map[string]interface{}, key []string) interface{} {
-	var kv map[string]interface{} = obj
+func GetObjValue (obj interface{}, key []string) interface{} {
+	if (len(key) == 0) {
+		return obj
+	}
+
+	kv, ok := obj.(map[string]interface{})
+	if (!ok) {
+		panic(fmt.Sprintf("Cannot get obj value from a non-obj value: %v", obj))
+	}
+
 	var retv interface{} = nil
 	
 	for i, k := range key {
@@ -102,32 +110,41 @@ func CreateObjFromBytes (byte_array []byte) map[string]interface{} {
 /*
 Expression 
 */ 
-func IsOperation (expr []interface{}) bool {
+func IsOperation (in_expr interface{}) ([]interface{}, bool) {
+	expr, ok := in_expr.([]interface{})
+	if (!ok) {
+		return nil, false
+	}
+
 	if (len(expr) < 2) {
-		return false 
+		return nil, false 
 	}
 
 	mark, ok := expr[0].(string)
 	if (!ok) {
-		return false
+		return nil, false
 	}
 	if (strings.Compare(SYMBOL_OPT_MARK, mark) != 0) {
-		return false
+		return nil, false
 	}
 
 	_, ok = expr[1].(string)
 	if (!ok) {
-		return false
+		return nil, false
 	}
 
-	return true
+	return expr, true
 }
 
-func IsBinaryExpr (expr []interface{}) bool {
-	if (!IsOperation(expr)) {
-		return false
+func IsBinaryOperation (in_expr interface{}) ([]interface{}, bool) {
+	operation, ok := IsOperation(in_expr)
+	if (!ok) {
+		return nil, false 
 	}
-	return (len(expr) == 4)
+	if (len(operation) != 4) {
+		return nil, false
+	}
+	return operation, true
 }
 
 /*
@@ -149,3 +166,16 @@ func MakeValidationComment (key []string, comment string) string {
 	return "On field " + GetKeyString(key) + " : " + comment 
 }
 
+/*
+Environment definition
+*/
+type Environment struct {
+	Store interface{} 
+}
+
+func (env Environment) Deref (ref []string) interface{} {
+	if (!IsRef(ref)) {
+		panic(fmt.Sprintf("The given ref is not a given reference: %v", ref))
+	}	
+	return GetObjValue(env.Store, ref[1:])
+}
