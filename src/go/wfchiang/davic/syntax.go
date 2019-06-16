@@ -67,7 +67,7 @@ func ParseRefString (ref_string string) []string {
 		panic("Invalid reference string: " + ref_string) 
 	}
 	
-	return tokens[1:len(tokens)]
+	return tokens
 }
 
 func GetObjKeys (obj map[string]interface{}) []string {
@@ -173,9 +173,21 @@ type Environment struct {
 	Store interface{} 
 }
 
-func (env Environment) Deref (ref []string) interface{} {
+func (env Environment) Deref (in_ref interface{}) interface{} {
+	var ref []string 
+
+	ref_string, ok := in_ref.(string) 
+	if (ok) {
+		ref = ParseRefString(ref_string)
+	} else {
+		ref, ok = in_ref.([]string)
+		if (!ok) {
+			panic(fmt.Sprintf("Environment deref failed due to invalid reference: %v", in_ref))
+		}
+	}
+
 	if (!IsRef(ref)) {
-		panic(fmt.Sprintf("The given ref is not a given reference: %v", ref))
+		panic(fmt.Sprintf("The given ref is not a reference: %v", ref))
 	}	
 	return GetObjValue(env.Store, ref[1:])
 }

@@ -106,15 +106,19 @@ func TestParseRefString0 (t *testing.T) {
 
 	keys := ParseRefString(key_string) 
 
-	if (len(keys) != 2) {
+	if (len(keys) != 3) {
 		t.Error("")
 	}
 
-	if (simpleIsViolation(TYPE_STRING, key0, keys[0])) {
+	if (simpleIsViolation(TYPE_STRING, SYMBOL_REF_MARK, keys[0])) {
 		t.Error("")
 	}
 
-	if (simpleIsViolation(TYPE_STRING, key1, keys[1])) {
+	if (simpleIsViolation(TYPE_STRING, key0, keys[1])) {
+		t.Error("")
+	}
+
+	if (simpleIsViolation(TYPE_STRING, key1, keys[2])) {
 		t.Error("")
 	}
 }
@@ -229,7 +233,7 @@ func TestMergeValidationResults (t *testing.T) {
 	}
 }
 
-func TestEnvironmentDeref (t *testing.T) {
+func TestEnvironmentDeref0 (t *testing.T) {
 	defer simpleRecover(t)
 
 	obj0 := CreateObjFromBytes(sampleJsonBytes0())
@@ -238,9 +242,9 @@ func TestEnvironmentDeref (t *testing.T) {
 	good_ref_0 := []string{SYMBOL_REF_MARK}
 	good_ref_1 := []string{SYMBOL_REF_MARK, "keyB"}
 	good_ref_2 := []string{SYMBOL_REF_MARK, "keyF"}
-
+	
 	if val := env0.Deref(good_ref_0) ; simpleIsViolation(TYPE_BOOL, true, IsType(TYPE_OBJ, val)) {
-		t.Error("")
+		t.Error("..")
 	}
 	
 	if val := env0.Deref(good_ref_1) ; simpleIsViolation(TYPE_BOOL, obj0[good_ref_1[1]], val) {
@@ -248,6 +252,29 @@ func TestEnvironmentDeref (t *testing.T) {
 	}
 
 	if val := env0.Deref(good_ref_2) ; simpleIsViolation(TYPE_NUMBER, obj0[good_ref_2[1]], val) {
+		t.Error("")
+	}
+}
+
+func TestEnvironmentDeref1 (t *testing.T) {
+	defer simpleRecover(t)
+
+	obj0 := CreateObjFromBytes(sampleJsonBytes0())
+	env0 := sampleEnvironment0()
+
+	good_ref_0 := SYMBOL_REF_MARK
+	good_ref_1 := SYMBOL_REF_MARK + SYMBOL_REF_SEPARATOR + "keyB"
+	good_ref_2 := SYMBOL_REF_MARK + SYMBOL_REF_SEPARATOR + "keyF"
+
+	if val := env0.Deref(good_ref_0) ; simpleIsViolation(TYPE_BOOL, true, IsType(TYPE_OBJ, val)) {
+		t.Error("")
+	}
+	
+	if val := env0.Deref(good_ref_1) ; simpleIsViolation(TYPE_BOOL, obj0["keyB"], val) {
+		t.Error("")
+	}
+
+	if val := env0.Deref(good_ref_2) ; simpleIsViolation(TYPE_NUMBER, obj0["keyF"], val) {
 		t.Error("")
 	}
 }
