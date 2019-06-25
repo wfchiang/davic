@@ -43,15 +43,19 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 		} else {
 			panic("Unsupport operand type for operation " + OPT_RELATION_EQ)
 		}
+
 	} else if (strings.Compare(OPT_ARITHMETIC_ADD, opt) == 0) {
 		if (len(operation) < 3) {
 			panic("Invalid operation: " + OPT_ARITHMETIC_ADD + " : " + fmt.Sprintf("%v", operation))
 		}
-		add_result := AsNumber(operation[2]) 
+		
+		add_result := AsNumber(EvalExpr(env, operation[2]))
 		for _, v := range operation[3:] {
-			add_result = add_result + AsNumber(v)
+			add_result = add_result + AsNumber(EvalExpr(env, v))
 		}
+		
 		return add_result
+
 	} else {
 		panic(fmt.Sprintf("Invalid/Unsupported evaluation of expression: %v", in_expr))
 	}
