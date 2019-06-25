@@ -13,7 +13,7 @@ Validation Core
 /********
 Expression evaluation
 ********/ 
-func EvalExpr (in_expr interface{}) interface{} {
+func EvalExpr (env Environment, in_expr interface{}) interface{} {
 	// Try to evaluate a reference -- cannot recursively evaluate a reference 
 	
 
@@ -33,8 +33,8 @@ func EvalExpr (in_expr interface{}) interface{} {
 		if (!ok) {
 			panic("Invalid operation: " + OPT_RELATION_EQ + " : " + fmt.Sprintf("%v", operation))
 		}
-		lhs := operation[2]
-		rhs := operation[3]
+		lhs := EvalExpr(env, operation[2])
+		rhs := EvalExpr(env, operation[3])
 
 		if (IsType(TYPE_BOOL, lhs) && IsType(TYPE_BOOL, rhs)) {
 			return (lhs == rhs)

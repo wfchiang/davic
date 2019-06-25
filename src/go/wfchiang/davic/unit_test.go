@@ -14,7 +14,7 @@ func sampleJsonBytes0 () []byte {
 
 func sampleEnvironment0 () Environment {
 	obj0 := CreateObjFromBytes(sampleJsonBytes0())
-	var env0 = Environment{Store:obj0}
+	var env0 = CreateNewEnvironment().PushStore(obj0)
 	return env0
 }
 
@@ -75,6 +75,14 @@ func TestIsType (t *testing.T) {
 	}
 	
 	if is_type := IsType(TYPE_STRING, "hello"); !is_type {
+		t.Error("")
+	}
+
+	if is_type := IsType(TYPE_ARRAY, "hello"); is_type {
+		t.Error("")
+	}
+
+	if is_type := IsType(TYPE_ARRAY, []interface{}{123.0, false, "Hello"}); !is_type {
 		t.Error("")
 	}
 
@@ -283,9 +291,12 @@ func TestEnvironmentDeref1 (t *testing.T) {
 Tests for semantics.go
 *********/
 func TestEvalExpr0 (t *testing.T) {
+	defer simpleRecover(t)
+
+	env := CreateNewEnvironment()
 	expr := 1
 
-	eval_result := EvalExpr(expr)
+	eval_result := EvalExpr(env, expr)
 
 	if (expr != eval_result) {
 		t.Error("")
@@ -295,15 +306,18 @@ func TestEvalExpr0 (t *testing.T) {
 func TestEvalExpr1 (t *testing.T) {
 	defer simpleExpectPanic(t)
 
+	env := CreateNewEnvironment()
 	expr := []interface{}{SYMBOL_OPT_MARK, OPT_RELATION_EQ, 1, 1}
-	EvalExpr(expr) 
+
+	EvalExpr(env, expr) 
 }
 
 func TestEvalExpr2 (t *testing.T) {
 	defer simpleRecover(t)
 
+	env := CreateNewEnvironment()
 	expr := []interface{}{SYMBOL_OPT_MARK, OPT_RELATION_EQ, 1.0, 1.0}
-	eval_result := EvalExpr(expr) 
+	eval_result := EvalExpr(env, expr) 
 	if (eval_result != true) {
 		t.Error("")
 	}
@@ -312,8 +326,9 @@ func TestEvalExpr2 (t *testing.T) {
 func TestEvalExpr3 (t *testing.T) {
 	defer simpleRecover(t)
 
+	env := CreateNewEnvironment()
 	expr := []interface{}{SYMBOL_OPT_MARK, OPT_RELATION_EQ, 1.0, 2.0}
-	eval_result := EvalExpr(expr) 
+	eval_result := EvalExpr(env, expr) 
 	if (eval_result != false) {
 		t.Error("")
 	}
