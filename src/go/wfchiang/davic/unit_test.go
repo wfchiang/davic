@@ -334,6 +334,25 @@ func TestEvalExpr3 (t *testing.T) {
 	}
 }
 
+func TestEvalExpr4 (t *testing.T) {
+	defer simpleRecover(t)
+
+	env := CreateNewEnvironment()
+	expr := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_ADD, 1.0, 2.0, 3.0}
+	eval_result := EvalExpr(env, expr) 
+	if (eval_result != 6.0) {
+		t.Error("")
+	}
+}
+
+func TestEvalExpr5 (t *testing.T) {
+	defer simpleExpectPanic(t)
+
+	env := CreateNewEnvironment()
+	expr := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_ADD, 1.0, 2.0, 3.0, "hello"}
+	EvalExpr(env, expr) 
+}
+
 /********
 Tests for utils.go
 ********/

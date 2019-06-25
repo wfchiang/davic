@@ -14,20 +14,21 @@ const (
 	SYMBOL_REF_MARK = "#"
 	SYMBOL_REF_SEPARATOR = "/"
 
-	TYPE_NULL   = "TYPE_NULL"
-	TYPE_BOOL   = "TYPE_BOOL"
-	TYPE_NUMBER = "TYPE_NUMBER"
-	TYPE_STRING = "TYPE_STRING"
-	TYPE_ARRAY  = "TYPE_ARRAY"
-	TYPE_OBJ    = "TYPE_OBJ"
+	TYPE_NULL   = "null"
+	TYPE_BOOL   = "bool"
+	TYPE_NUMBER = "number"
+	TYPE_STRING = "string"
+	TYPE_ARRAY  = "array"
+	TYPE_OBJ    = "object"
 
-	OPT_RELATION_EQ = "OPT_RELATION_EQ"
+	OPT_RELATION_EQ = "="
+	OPT_ARITHMETIC_ADD = "+"
 	OPT_WEBCALL = "OPT_WEBCALL"
 	OPT_OBJ_FIELD_READ = "OPT_OBJ_FIELD_READ"
 )
 
 /*
-Type predicates
+Type predicates and utils
 */ 
 func IsType (type_name string, value interface{}) bool {
 	is_type := false
@@ -49,6 +50,15 @@ func IsType (type_name string, value interface{}) bool {
 	}
 
 	return is_type
+}
+
+func AsNumber (value interface{}) float64 {
+	var is_num bool 
+	var num float64
+	if num, is_num = value.(float64); !is_num {
+		panic(fmt.Sprintf("AsNumber: not a number: %v", value))
+	}
+	return num
 }
 
 /*
