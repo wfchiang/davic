@@ -14,7 +14,8 @@ func sampleJsonBytes0 () []byte {
 
 func sampleEnvironment0 () Environment {
 	obj0 := CreateObjFromBytes(sampleJsonBytes0())
-	var env0 = CreateNewEnvironment().PushStore(obj0)
+	env0 := CreateNewEnvironment()
+	env0.Store = obj0
 	return env0
 }
 
@@ -283,6 +284,32 @@ func TestEnvironmentDeref1 (t *testing.T) {
 	}
 
 	if val := env0.Deref(good_ref_2) ; simpleIsViolation(TYPE_NUMBER, obj0["keyF"], val) {
+		t.Error("")
+	}
+}
+
+func TestEnvironmentPushStack (t *testing.T) {
+	defer simpleRecover(t)
+
+	env0 := sampleEnvironment0()
+	stack_value := "123"
+	env1 := env0.PushStack(stack_value)
+
+	if env0.Stack.Len() != 0 {
+		t.Error("")
+	}
+
+	if env1.Stack.Len() != 1 {
+		t.Error("")
+	}
+
+	env2 := env1.PopStack() 
+	
+	if env1.Stack.Len() != 1 {
+		t.Error("")
+	}
+
+	if env2.Stack.Len() != 0 {
 		t.Error("")
 	}
 }

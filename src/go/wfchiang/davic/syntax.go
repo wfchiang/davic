@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"strings"
 	"encoding/json"
+	"container/list"
 )
 
 const (
 	STACK_DEPTH = 5
 
 	SYMBOL_OPT_MARK = "&"
+
+	SYMBOL_STACK_MARK = "$"
 
 	SYMBOL_REF_MARK = "#"
 	SYMBOL_REF_SEPARATOR = "/"
@@ -213,51 +216,31 @@ func MakeValidationComment (key []string, comment string) string {
 Environment definition
 */
 type Environment struct {
-	StoreStackIndex int
-	StoreStack [STACK_DEPTH]interface{} 
+	Store interface{}
+	Stack *list.List
 }
 
 func CreateNewEnvironment () Environment {
-	newEnv := Environment{StoreStackIndex:-1, StoreStack:[STACK_DEPTH]interface{}{}}
+	newEnv := Environment{Store:nil,Stack:list.New()}
 	return newEnv
 }
 
 func (env Environment) Clone () Environment {
 	new_env := CreateNewEnvironment() 
 	
-	new_env.StoreStackIndex = env.StoreStackIndex
-	
-	for i, store := range env.StoreStack {
-		new_env.StoreStack[i] = CopyValue(store)
+	new_env.Store = CopyValue(env.Store)
+
+	new_env.Stack = list.New()
+	stack_element := env.Stack.Front()
+	for i := 0 ; i < STACK_DEPTH ; i++ {
+		if (stack_element == nil) {
+			break
+		}
+		new_env.Stack.PushBack(CopyValue(stack_element.Value))
+		stack_element = stack_element.Next()
 	}
 
 	return new_env
-}
-
-func (env Environment) GetStore () interface{} {
-	if (env.StoreStackIndex < 0 || env.StoreStackIndex >= STACK_DEPTH) {
-		panic(fmt.Sprintf("StoreStackIndex out of bound: %v", env.StoreStackIndex))
-	}
-	return env.StoreStack[env.StoreStackIndex]
-}
-
-func (env Environment) PushStore (newStore interface{}) Environment {
-	new_env := env.Clone()
-	new_env.StoreStackIndex = new_env.StoreStackIndex + 1
-	if (new_env.StoreStackIndex < 0 || env.StoreStackIndex >= STACK_DEPTH) {
-		panic(fmt.Sprintf("StoreStackIndex out of bound: %v", env.StoreStackIndex))
-	}
-	new_env.StoreStack[new_env.StoreStackIndex] = CopyValue(newStore)
-	return new_env
-}
-
-func (env Environment) PopStore () Environment {
-	new_env := env.Clone() 
-	new_env.StoreStackIndex = new_env.StoreStackIndex - 1
-	if (new_env.StoreStackIndex < 0 || env.StoreStackIndex >= STACK_DEPTH) {
-		panic(fmt.Sprintf("StoreStackIndex out of bound: %v", env.StoreStackIndex))
-	}
-	return new_env 
 }
 
 func (env Environment) Deref (in_ref interface{}) interface{} {
@@ -276,5 +259,23 @@ func (env Environment) Deref (in_ref interface{}) interface{} {
 	if (!IsRef(ref)) {
 		panic(fmt.Sprintf("The given ref is not a reference: %v", ref))
 	}	
-	return GetObjValue(env.GetStore(), ref[1:])
+	return GetObjValue(env.Store, ref[1:])
+}
+
+func (env Environment) PushStack (stack_value interface{}) Environment {
+	if (env.Stack.Len() >= STACK_DEPTH) {
+		panic("Cannot push stack: stack overflow")
+	}
+	new_env := env.Clone() 
+	new_env.Stack.PushBack(stack_value)
+	return new_env 
+}
+
+func (env Environment) PopStack () Environment {
+	if (env.Stack.Len() == 0) {
+		panic("Cannot pop stack: stack depth = 0")
+	}
+	new_env := env.Clone() 
+	new_env.Stack.Remove(new_env.Stack.Back())
+	return new_env
 }
