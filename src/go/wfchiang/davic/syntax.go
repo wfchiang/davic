@@ -56,15 +56,6 @@ func IsType (type_name string, value interface{}) bool {
 	return is_type
 }
 
-func AsNumber (value interface{}) float64 {
-	var is_num bool 
-	var num float64
-	if num, is_num = value.(float64); !is_num {
-		panic(fmt.Sprintf("AsNumber: not a number: %v", value))
-	}
-	return num
-}
-
 /*
 Copy Value
 */ 

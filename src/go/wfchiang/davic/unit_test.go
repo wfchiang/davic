@@ -9,7 +9,7 @@ import (
 Sample Data
 *********/
 func sampleJsonBytes0 () []byte {
-	return []byte("{\"keyN\":null,\"keyB\":false,\"keyI\":123,\"keyF\":1.23,\"keyS\":\"valS\",\"keyO\":{\"keykeyB\":true}}")
+	return []byte("{\"keyN\":null,\"keyB\":false,\"keyI\":123,\"keyF\":1.23,\"keyS\":\"valS\",\"keyO\":{\"keykeyB\":true},\"keyA\":[1, 2, 3]}")
 }
 
 func sampleEnvironment0 () Environment {
@@ -48,7 +48,7 @@ func simpleRecover (t *testing.T) {
 /********
 Tests for syntax.go
 ********/
-func TestIsType (t *testing.T) {
+func TestIsType0 (t *testing.T) {
 	defer simpleRecover(t) 
 
 	if is_type := IsType(TYPE_BOOL, false); !is_type {
@@ -87,7 +87,7 @@ func TestIsType (t *testing.T) {
 		t.Error("")
 	}
 
-	if is_type := IsType(TYPE_ARRAY, []int{1, 2, 3}); !is_type {
+	if is_type := IsType(TYPE_ARRAY, []int{1, 2, 3}); is_type { // because the Go language unmarshaller should not give us this type: []int
 		t.Error("")
 	}
 
@@ -106,6 +106,10 @@ func TestIsType (t *testing.T) {
 	}
 
 	if is_type := IsType(TYPE_NULL, obj0["no-such-key"]); !is_type {
+		t.Error("")
+	}
+
+	if is_type := IsType(TYPE_ARRAY, obj0["keyA"]); !is_type {
 		t.Error("")
 	}
 }
@@ -428,7 +432,7 @@ func TestEvalExpr8 (t *testing.T) {
 
 	env := CreateNewEnvironment() 
 
-	expr1 := []interface{}{SYMBOL_OPT_MARK, OPT_FIELD_READ, [3]int{1,2,3}, 1}
+	expr1 := []interface{}{SYMBOL_OPT_MARK, OPT_FIELD_READ, []interface{}{1,2,3}, 1.0}
 	eval_result := EvalExpr(env, expr1)
 	if (eval_result != 2) {
 		t.Error("")
@@ -450,9 +454,15 @@ func TestEvalExpr8 (t *testing.T) {
 }
 
 func TestEvalExpr9 (t *testing.T) {
-	defer simpleRecover(t)
+	defer simpleExpectPanic(t)
 
+	env := CreateNewEnvironment() 
 
+	expr1 := []interface{}{SYMBOL_OPT_MARK, OPT_FIELD_READ, []int{1,2,3}, 1.0}
+	eval_result := EvalExpr(env, expr1)
+	if (eval_result != 2) {
+		t.Error("")
+	}
 }
 
 /********

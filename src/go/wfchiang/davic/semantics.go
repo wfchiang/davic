@@ -53,49 +53,39 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 			panic(fmt.Sprintf("Invalid operation: %v", operation))
 		}
 		
-		add_result := AsNumber(EvalExpr(env, operation[2]))
+		add_result := CastInterfaceToNumber(EvalExpr(env, operation[2]))
 		for _, v := range operation[3:] {
-			add_result = add_result + AsNumber(EvalExpr(env, v))
+			add_result = add_result + CastInterfaceToNumber(EvalExpr(env, v))
 		}
 		
 		return add_result
 
 	} else if (strings.Compare(OPT_FIELD_READ, opt) == 0) {
 		if (len(operation) != 4) {
-			panic(fmt.Sprintf("Invalid operation: %v : %s", operation, "mal-form"))
+			panic(fmt.Sprintf("Invalid field-read operation: %v : %s", operation, "mal-form"))
 		}
 
 		container := EvalExpr(env, operation[2])
 		key := EvalExpr(env, operation[3])
 
-		if (IsType(TYPE_OBJ, container) && IsType(TYPE_ARRAY, key)) { // If the container is an object ...
-			typed_container, ok := container.(map[string]interface{})
-			if (!ok) {
-				panic(fmt.Sprintf("Invalid operation: %v : %s", operation, "invalid obj"))
-			}
-
-			typed_key, ok := key.(string)
-			if (!ok) {
-				panic(fmt.Sprintf("Invalid operation: %v : %s", operation, "invalid obj key"))
-			}
-
+		if (IsType(TYPE_OBJ, container) && IsType(TYPE_STRING, key)) { // If the container is an object ...
+			typed_container := CastInterfaceToObj(container)
+			typed_key := CastInterfaceToString(key)
 			return typed_container[typed_key]
 
 		} else if (IsType(TYPE_ARRAY, container) && IsType(TYPE_NUMBER, key)) { // If the container is an array ... 
-			typed_container, ok := container.([]interface{})
-			if (!ok) {
-				panic(fmt.Sprintf("Invalid operation: %v : %s", operation, "invalid array"))
-			}
+			typed_container := CastInterfaceToArray(container)
 
-			typed_key, ok := key.(int)
-			if (!ok) {
-				panic(fmt.Sprintf("Invalid operation: %v : %s", operation, "invalid array key"))
+			float64_key := CastInterfaceToNumber(key)
+			typed_key := int(float64_key)
+			if (float64_key != float64(typed_key)) {
+				panic(fmt.Sprintf("Invalid operation: %v : %s", operation, "cannot cast the array index to a number"))
 			}
 
 			return typed_container[typed_key]
 
 		} else {
-			panic(fmt.Sprintf("Invalid operation: %v %v %v", operation, IsType(TYPE_ARRAY, container), IsType(TYPE_NUMBER, key)))
+			panic(fmt.Sprintf("Invalid field-read operation: %v", operation))
 		}
 
 	} else {
