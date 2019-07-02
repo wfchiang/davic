@@ -28,10 +28,14 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 		panic("Operator (" + fmt.Sprintf("%v", opt) + ")is not a string")
 	}
 
-	if (strings.Compare(OPT_RELATION_EQ, opt) == 0) {
+	if (strings.Compare(OPT_STACK_READ, opt) == 0) {
+		// should NOT evaluate the stack value 
+		return env.ReadStack()
+	
+	} else if (strings.Compare(OPT_RELATION_EQ, opt) == 0) {
 		operation, ok = IsBinaryOperation(in_expr)
 		if (!ok) {
-			panic("Invalid operation: " + OPT_RELATION_EQ + " : " + fmt.Sprintf("%v", operation))
+			panic(fmt.Sprintf("Invalid operation: %v", operation))
 		}
 		lhs := EvalExpr(env, operation[2])
 		rhs := EvalExpr(env, operation[3])
@@ -41,12 +45,12 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 		} else if (IsType(TYPE_NUMBER, lhs) && IsType(TYPE_NUMBER, rhs)) {
 			return (lhs == rhs)
 		} else {
-			panic("Unsupport operand type for operation " + OPT_RELATION_EQ)
+			panic(fmt.Sprintf("Invalid operation: %v", operation))
 		}
 
 	} else if (strings.Compare(OPT_ARITHMETIC_ADD, opt) == 0) {
 		if (len(operation) < 3) {
-			panic("Invalid operation: " + OPT_ARITHMETIC_ADD + " : " + fmt.Sprintf("%v", operation))
+			panic(fmt.Sprintf("Invalid operation: %v", operation))
 		}
 		
 		add_result := AsNumber(EvalExpr(env, operation[2]))
@@ -55,6 +59,44 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 		}
 		
 		return add_result
+
+	} else if (strings.Compare(OPT_FIELD_READ, opt) == 0) {
+		if (len(operation) != 4) {
+			panic(fmt.Sprintf("Invalid operation: %v : %s", operation, "mal-form"))
+		}
+
+		container := EvalExpr(env, operation[2])
+		key := EvalExpr(env, operation[3])
+
+		if (IsType(TYPE_OBJ, container) && IsType(TYPE_ARRAY, key)) { // If the container is an object ...
+			typed_container, ok := container.(map[string]interface{})
+			if (!ok) {
+				panic(fmt.Sprintf("Invalid operation: %v : %s", operation, "invalid obj"))
+			}
+
+			typed_key, ok := key.(string)
+			if (!ok) {
+				panic(fmt.Sprintf("Invalid operation: %v : %s", operation, "invalid obj key"))
+			}
+
+			return typed_container[typed_key]
+
+		} else if (IsType(TYPE_ARRAY, container) && IsType(TYPE_NUMBER, key)) { // If the container is an array ... 
+			typed_container, ok := container.([]interface{})
+			if (!ok) {
+				panic(fmt.Sprintf("Invalid operation: %v : %s", operation, "invalid array"))
+			}
+
+			typed_key, ok := key.(int)
+			if (!ok) {
+				panic(fmt.Sprintf("Invalid operation: %v : %s", operation, "invalid array key"))
+			}
+
+			return typed_container[typed_key]
+
+		} else {
+			panic(fmt.Sprintf("Invalid operation: %v %v %v", operation, IsType(TYPE_ARRAY, container), IsType(TYPE_NUMBER, key)))
+		}
 
 	} else {
 		panic(fmt.Sprintf("Invalid/Unsupported evaluation of expression: %v", in_expr))

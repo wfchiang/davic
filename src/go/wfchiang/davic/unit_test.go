@@ -87,6 +87,10 @@ func TestIsType (t *testing.T) {
 		t.Error("")
 	}
 
+	if is_type := IsType(TYPE_ARRAY, []int{1, 2, 3}); !is_type {
+		t.Error("")
+	}
+
 	if is_type := IsType(TYPE_OBJ, 1); is_type {
 		t.Error("")
 	}
@@ -288,7 +292,7 @@ func TestEnvironmentDeref1 (t *testing.T) {
 	}
 }
 
-func TestEnvironmentPushStack (t *testing.T) {
+func TestEnvironmentStack0 (t *testing.T) {
 	defer simpleRecover(t)
 
 	env0 := sampleEnvironment0()
@@ -312,6 +316,18 @@ func TestEnvironmentPushStack (t *testing.T) {
 	if env2.Stack.Len() != 0 {
 		t.Error("")
 	}
+
+	env1_stack_value := env1.ReadStack()
+	if env1_stack_value != "123" {
+		t.Error("")
+	}
+}
+
+func TestEnvironmentStack1 (t *testing.T) {
+	defer simpleExpectPanic(t)
+
+	env0 := sampleEnvironment0()
+	env0.ReadStack()
 }
 
 /********
@@ -392,6 +408,51 @@ func TestEvalExpr6 (t *testing.T) {
 	if (eval_result != 27.0) {
 		t.Error("")
 	}
+}
+
+func TestEvalExpr7 (t *testing.T) {
+	defer simpleRecover(t)
+
+	env := CreateNewEnvironment()
+	env = env.PushStack("123")
+
+	expr := []interface{}{SYMBOL_OPT_MARK, OPT_STACK_READ}
+	eval_result := EvalExpr(env, expr)
+	if (eval_result != "123") {
+		t.Error("")
+	}
+}
+
+func TestEvalExpr8 (t *testing.T) {
+	defer simpleRecover(t)
+
+	env := CreateNewEnvironment() 
+
+	expr1 := []interface{}{SYMBOL_OPT_MARK, OPT_FIELD_READ, [3]int{1,2,3}, 1}
+	eval_result := EvalExpr(env, expr1)
+	if (eval_result != 2) {
+		t.Error("")
+	}
+
+	obj2 := map[string]interface{}{"abc":1, "xyz":"123"}
+	expr2 := []interface{}{SYMBOL_OPT_MARK, OPT_FIELD_READ, obj2, "abc"}
+	expr3 := []interface{}{SYMBOL_OPT_MARK, OPT_FIELD_READ, obj2, "xyz"}
+	
+	eval_result = EvalExpr(env, expr2)
+	if (eval_result != 1) {
+		t.Error("")
+	}
+
+	eval_result = EvalExpr(env, expr3)
+	if (eval_result != "123") {
+		t.Error("")
+	}
+}
+
+func TestEvalExpr9 (t *testing.T) {
+	defer simpleRecover(t)
+
+
 }
 
 /********

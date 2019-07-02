@@ -11,9 +11,6 @@ const (
 	STACK_DEPTH = 5
 
 	SYMBOL_OPT_MARK = "&"
-
-	SYMBOL_STACK_MARK = "$"
-
 	SYMBOL_REF_MARK = "#"
 	SYMBOL_REF_SEPARATOR = "/"
 
@@ -24,10 +21,14 @@ const (
 	TYPE_ARRAY  = "array"
 	TYPE_OBJ    = "object"
 
+	OPT_STACK_READ = "~"
+
 	OPT_RELATION_EQ = "="
 	OPT_ARITHMETIC_ADD = "+"
+	
 	OPT_WEBCALL = "OPT_WEBCALL"
-	OPT_OBJ_FIELD_READ = "OPT_OBJ_FIELD_READ"
+	
+	OPT_FIELD_READ = "OPT_FIELD_READ"
 )
 
 /*
@@ -182,13 +183,18 @@ func IsOperation (in_expr interface{}) ([]interface{}, bool) {
 	return expr, true
 }
 
+func IsUnaryOperation (in_expr interface{}) ([]interface{}, bool) {
+	operation, ok := IsOperation(in_expr)
+	if (!ok || len(operation) != 3) {
+		return nil, false
+	}
+	return operation, true
+}
+
 func IsBinaryOperation (in_expr interface{}) ([]interface{}, bool) {
 	operation, ok := IsOperation(in_expr)
-	if (!ok) {
+	if (!ok || len(operation) != 4) {
 		return nil, false 
-	}
-	if (len(operation) != 4) {
-		return nil, false
 	}
 	return operation, true
 }
@@ -278,4 +284,14 @@ func (env Environment) PopStack () Environment {
 	new_env := env.Clone() 
 	new_env.Stack.Remove(new_env.Stack.Back())
 	return new_env
+}
+
+func (env Environment) ReadStack () interface{} {
+	if (env.Stack.Len() == 0) {
+		panic("Cannot read from an empty stack")
+	}
+	if (env.Stack.Len() >= STACK_DEPTH) {
+		panic("Stack overflow found when read...")
+	}
+	return env.Stack.Back().Value
 }
