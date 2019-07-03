@@ -454,7 +454,7 @@ func TestEvalExpr8 (t *testing.T) {
 }
 
 func TestEvalExpr9 (t *testing.T) {
-	defer simpleExpectPanic(t)
+	defer simpleExpectPanic(t) 
 
 	env := CreateNewEnvironment() 
 
