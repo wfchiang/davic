@@ -207,49 +207,6 @@ func TestTestGetValue1 (t *testing.T) {
 	GetObjValue(obj,[]string{"no-such-key","no-more-such-key"})
 }
 
-func TestMergeValidationResults (t *testing.T) {
-	defer simpleRecover(t)
-
-	var result0 ValidationResult
-	result0.IsValid = true
-	result0.Comments = []string{}
-
-	var result1 ValidationResult 
-	result1.IsValid = true 
-	result1.Comments = []string{"Reason 1.0"}
-
-	var result2 ValidationResult
-	result2.IsValid = false 
-	result2.Comments = []string{"Reason 2.0", "Reason 2.1"}
-
-	result01 := MergeValidationResults(result0, result1)
-	result12 := MergeValidationResults(result1, result2)
-
-	if (!result01.IsValid) {
-		t.Error("")
-	}
-
-	if (len(result01.Comments) != 1) {
-		t.Error("")
-	}
-
-	if (result01.Comments[0] != "Reason 1.0") {
-		t.Error("")
-	}
-
-	if (result12.IsValid) {
-		t.Error("")
-	}
-
-	if (len(result12.Comments) != 3) {
-		t.Error("")
-	}
-
-	if (result12.Comments[0] != "Reason 1.0" || result12.Comments[1] != "Reason 2.0" || result12.Comments[2] != "Reason 2.1") {
-		t.Error("")
-	}
-}
-
 func TestEnvironmentDeref0 (t *testing.T) {
 	defer simpleRecover(t)
 

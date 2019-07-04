@@ -191,25 +191,6 @@ func IsBinaryOperation (in_expr interface{}) ([]interface{}, bool) {
 }
 
 /*
-Validation Result
-*/ 
-type ValidationResult struct {
-	IsValid bool
-	Comments []string 
-}
-
-func MergeValidationResults (vr0 ValidationResult, vr1 ValidationResult) ValidationResult {
-	var final_result ValidationResult
-	final_result.IsValid = (vr0.IsValid && vr1.IsValid)
-	final_result.Comments = append(vr0.Comments, vr1.Comments...)
-	return final_result
-}
-
-func MakeValidationComment (key []string, comment string) string {
-	return "On field " + GetKeyString(key) + " : " + comment 
-}
-
-/*
 Environment definition
 */
 type Environment struct {
