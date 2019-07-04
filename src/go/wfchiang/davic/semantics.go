@@ -5,15 +5,15 @@ import (
 	"strings"
 )
 
-/*********
-Validation Core 
-*********/
-
-
 /********
 Expression evaluation
 ********/ 
 func EvalExpr (env Environment, in_expr interface{}) interface{} {
+	// No need to evaluate lambda 
+	if _, is_lambda := IsLambdaOperation(in_expr); is_lambda {
+		return in_expr
+	}
+
 	// Try to evaluate a reference -- cannot recursively evaluate a reference 
 	
 
@@ -87,6 +87,22 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 		} else {
 			panic(fmt.Sprintf("Invalid field-read operation: %v", operation))
 		}
+
+	} else if (strings.Compare(OPT_FUNC_CALL, opt) == 0) {
+		if (len(operation) != 4) {
+			panic(fmt.Sprintf("Invalid operation: %v", operation))
+		}
+
+		param := EvalExpr(env, operation[2])
+		opt_lambda := EvalExpr(env, operation[3])
+		lambda, is_lambda := IsLambdaOperation(opt_lambda)
+
+		if (!is_lambda) {
+			panic(fmt.Sprintf("Invalid lambda given in function call: %v", operation))
+		}
+
+		new_env := env.PushStack(param) 
+		return EvalExpr(new_env, lambda[2]) 
 
 	} else {
 		panic(fmt.Sprintf("Invalid/Unsupported evaluation of expression: %v", in_expr))

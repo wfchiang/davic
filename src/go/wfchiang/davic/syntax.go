@@ -22,13 +22,15 @@ const (
 	TYPE_OBJ    = "object"
 
 	OPT_STACK_READ = "~"
+	OPT_LAMBDA = "^"
+	OPT_FUNC_CALL = "!"
 
 	OPT_RELATION_EQ = "="
 	OPT_ARITHMETIC_ADD = "+"
 	
 	OPT_WEBCALL = "OPT_WEBCALL"
 	
-	OPT_FIELD_READ = "OPT_FIELD_READ"
+	OPT_FIELD_READ = "@"
 )
 
 /*
@@ -188,6 +190,14 @@ func IsBinaryOperation (in_expr interface{}) ([]interface{}, bool) {
 		return nil, false 
 	}
 	return operation, true
+}
+
+func IsLambdaOperation (in_expr interface{}) ([]interface{}, bool) {
+	operation, ok := IsUnaryOperation(in_expr)
+	if (!ok || operation[1] != OPT_LAMBDA) {
+		return nil, false
+	}
+	return operation, true 
 }
 
 /*

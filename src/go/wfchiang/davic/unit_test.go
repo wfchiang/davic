@@ -422,6 +422,76 @@ func TestEvalExpr9 (t *testing.T) {
 	}
 }
 
+func TestEvalExpr10 (t *testing.T) {
+	defer simpleRecover(t)
+
+	env := CreateNewEnvironment() 
+
+	lambda := []interface{}{SYMBOL_OPT_MARK, OPT_LAMBDA, 123}
+	eval_result := EvalExpr(env, lambda) 
+	original_lambda, is_lambda := IsLambdaOperation(eval_result)
+	if !is_lambda {
+		t.Error("")
+	}
+	if lambda[2] != original_lambda[2] {
+		t.Error("")
+	}
+}
+
+func TestEvalExpr11 (t *testing.T) {
+	defer simpleRecover(t)
+
+	env := CreateNewEnvironment() 
+
+	stack_read := []interface{}{SYMBOL_OPT_MARK, OPT_STACK_READ}
+	lambda := []interface{}{SYMBOL_OPT_MARK, OPT_LAMBDA, stack_read}
+
+	func_call_0 := []interface{}{SYMBOL_OPT_MARK, OPT_FUNC_CALL, 123, lambda}
+	if eval := EvalExpr(env, func_call_0); eval != 123 {
+		t.Error("")
+	}
+
+	func_call_1 := []interface{}{SYMBOL_OPT_MARK, OPT_FUNC_CALL, "abc", lambda}
+	if eval := EvalExpr(env, func_call_1); eval != "abc" {
+		t.Error("")
+	}
+}
+
+func TestEvalExpr12 (t *testing.T) {
+	defer simpleRecover(t)
+
+	env := CreateNewEnvironment() 
+
+	stack_read := []interface{}{SYMBOL_OPT_MARK, OPT_STACK_READ}
+	stack_field_0 := []interface{}{SYMBOL_OPT_MARK, OPT_FIELD_READ, stack_read, 0.0}
+	stack_field_1 := []interface{}{SYMBOL_OPT_MARK, OPT_FIELD_READ, stack_read, 1.0}
+
+	opt_add_stack := []interface{}{
+		SYMBOL_OPT_MARK,
+		OPT_ARITHMETIC_ADD, 
+		stack_field_0, 
+		stack_field_1}
+	lambda := []interface{}{SYMBOL_OPT_MARK, OPT_LAMBDA, opt_add_stack}
+
+	func_call_0 := []interface{}{
+		SYMBOL_OPT_MARK, 
+		OPT_FUNC_CALL, 
+		[]interface{}{1.0, 2.0}, 
+		lambda}
+	if eval := EvalExpr(env, func_call_0); eval != 3.0 {
+		t.Error("")
+	}
+
+	func_call_1 := []interface{}{
+		SYMBOL_OPT_MARK, 
+		OPT_FUNC_CALL, 
+		[]interface{}{2.0, 2.0}, 
+		lambda}
+	if eval := EvalExpr(env, func_call_1); eval != 4.0 {
+		t.Error("")
+	}
+}
+
 /********
 Tests for utils.go
 ********/
