@@ -28,6 +28,14 @@ func CastNumberToInt (value float64) int {
 	return int_value
 }
 
+func CastInterfaceToBool (value interface{}) bool {
+	bool_value, ok := value.(bool)
+	if (!ok) {
+		panic("CastInterfaceToBool failed")
+	}
+	return bool_value
+}
+
 func CastInterfaceToNumber (value interface{}) float64 {
 	float64_value, ok := value.(float64)
 	if (!ok) {

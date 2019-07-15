@@ -4,9 +4,6 @@ import (
 	"testing"
 )
 
-/********
-Tests
-********/
 func TestIsType0 (t *testing.T) {
 	defer simpleRecover(t) 
 

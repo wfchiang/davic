@@ -88,6 +88,38 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 			panic(fmt.Sprintf("Invalid field-read operation: %v", operation))
 		}
 
+	} else if (strings.Compare(OPT_FIELD_UPDATE, opt) == 0) {
+		if (len(operation) != 5) {
+			panic(fmt.Sprintf("Invalid field-update operation: %v : %s", operation, "mal-form"))
+		}
+
+		new_container := CopyValue(EvalExpr(env, operation[2]))
+		key := EvalExpr(env, operation[3])
+		new_val := EvalExpr(env, operation[4])
+
+		if (IsType(TYPE_OBJ, new_container) && IsType(TYPE_STRING, key)) { // If the container is an object ...
+			typed_container := CastInterfaceToObj(new_container)
+			typed_key := CastInterfaceToString(key)
+			typed_container[typed_key] = new_val
+			return typed_container
+
+		} else if (IsType(TYPE_ARRAY, new_container) && IsType(TYPE_NUMBER, key)) { // If the container is an array ... 
+			typed_container := CastInterfaceToArray(new_container)
+
+			float64_key := CastInterfaceToNumber(key)
+			typed_key := int(float64_key)
+			if (float64_key != float64(typed_key)) {
+				panic(fmt.Sprintf("Invalid operation: %v : %s", operation, "cannot cast the array index to a number"))
+			}
+
+			typed_container[typed_key] = new_val
+
+			return typed_container
+
+		} else {
+			panic(fmt.Sprintf("Invalid field-update operation: %v", operation))
+		}
+
 	} else if (strings.Compare(OPT_FUNC_CALL, opt) == 0) {
 		if (len(operation) != 4) {
 			panic(fmt.Sprintf("Invalid operation: %v", operation))

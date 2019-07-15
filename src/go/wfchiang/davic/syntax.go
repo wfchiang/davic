@@ -30,7 +30,8 @@ const (
 	
 	OPT_WEBCALL = "OPT_WEBCALL"
 	
-	OPT_FIELD_READ = "@"
+	OPT_FIELD_READ = "-fr-"
+	OPT_FIELD_UPDATE = "-fu-"
 )
 
 /*

@@ -5,23 +5,6 @@ import (
 	"testing"
 )
 
-/********* 
-Sample Data
-*********/
-func sampleJsonBytes0 () []byte {
-	return []byte("{\"keyN\":null,\"keyB\":false,\"keyI\":123,\"keyF\":1.23,\"keyS\":\"valS\",\"keyO\":{\"keykeyB\":true},\"keyA\":[1, 2, 3]}")
-}
-
-func sampleEnvironment0 () Environment {
-	obj0 := CreateObjFromBytes(sampleJsonBytes0())
-	env0 := CreateNewEnvironment()
-	env0.Store = obj0
-	return env0
-}
-
-/********
-Tests for semantics.go
-*********/
 func TestEvalExpr0 (t *testing.T) {
 	defer simpleRecover(t)
 
@@ -216,6 +199,29 @@ func TestEvalExpr12 (t *testing.T) {
 		[]interface{}{2.0, 2.0}, 
 		lambda}
 	if eval := EvalExpr(env, func_call_1); eval != 4.0 {
+		t.Error("")
+	}
+}
+
+func TestEvalExpr13 (t *testing.T) {
+	defer simpleRecover(t)
+
+	env := sampleEnvironment0()
+
+	ref := []string{SYMBOL_REF_MARK}
+	old_obj := env.Deref(ref)
+	
+	opt_field_read := []interface{}{SYMBOL_OPT_MARK, OPT_FIELD_READ, old_obj, "keyB"}
+
+	if old_val := CastInterfaceToBool(EvalExpr(env, opt_field_read)); old_val != false {
+		t.Error("")
+	}
+
+	opt_field_update := []interface{}{SYMBOL_OPT_MARK, OPT_FIELD_UPDATE, env.Deref(ref), "keyB", true}
+	new_obj := EvalExpr(env, opt_field_update)
+	opt_field_read[2] = new_obj
+
+	if new_val := CastInterfaceToBool(EvalExpr(env, opt_field_read)); new_val != true {
 		t.Error("")
 	}
 }
