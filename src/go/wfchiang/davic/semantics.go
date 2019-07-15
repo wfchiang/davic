@@ -121,7 +121,8 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 		ref_key := []string{}
 
 		for _, key_part := range operation[1:] {
-			string_key_part := CastInterfaceToString(EvalExpr(env, key_part))
+			// DO NOT evaluate key_part --> if key_part itself is not a string --> this is an error! 
+			string_key_part := CastInterfaceToString(key_part)
 			ref_key = append(ref_key, string_key_part)
 		}
 
