@@ -1,6 +1,7 @@
 package davic 
 
 import (
+	"fmt"
 	"strings"
 )
 
@@ -55,7 +56,7 @@ func CastInterfaceToInt (value interface{}) int {
 func CastInterfaceToString (value interface{}) string {
 	string_value, ok := value.(string)
 	if (!ok) {
-		panic("CastInterfaceToString failed")
+		panic(fmt.Sprintf("CastInterfaceToString failed: %v", value))
 	}
 	return string_value
 }

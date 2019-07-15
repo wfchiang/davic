@@ -225,3 +225,15 @@ func TestEvalExpr13 (t *testing.T) {
 		t.Error("")
 	}
 }
+
+func TestEvalExpr14 (t *testing.T) {
+	defer simpleRecover(t)
+
+	env := sampleEnvironment0()
+
+	opt_deref := []interface{}{SYMBOL_OPT_MARK, SYMBOL_REF_MARK, "keyO", "keykeyB"}
+
+	if val := CastInterfaceToBool(EvalExpr(env, opt_deref)); val != true {
+		t.Error("")
+	}
+}

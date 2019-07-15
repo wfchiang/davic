@@ -14,9 +14,6 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 		return in_expr
 	}
 
-	// Try to evaluate a reference -- cannot recursively evaluate a reference 
-	
-
 	// Try to evaluate an operation -- an operation has its form...
 	operation, ok := IsOperation(in_expr)
 	if (!ok) {
@@ -119,6 +116,16 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 		} else {
 			panic(fmt.Sprintf("Invalid field-update operation: %v", operation))
 		}
+
+	} else if (strings.Compare(SYMBOL_REF_MARK, opt) == 0) {
+		ref_key := []string{}
+
+		for _, key_part := range operation[1:] {
+			string_key_part := CastInterfaceToString(EvalExpr(env, key_part))
+			ref_key = append(ref_key, string_key_part)
+		}
+
+		return env.Deref(ref_key)
 
 	} else if (strings.Compare(OPT_FUNC_CALL, opt) == 0) {
 		if (len(operation) != 4) {

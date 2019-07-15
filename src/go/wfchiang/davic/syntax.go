@@ -12,7 +12,6 @@ const (
 
 	SYMBOL_OPT_MARK = "&"
 	SYMBOL_REF_MARK = "#"
-	SYMBOL_REF_SEPARATOR = "/"
 
 	TYPE_NULL   = "null"
 	TYPE_BOOL   = "bool"
@@ -90,25 +89,11 @@ func CopyValue (value interface{}) interface{} {
 /*
 Json/Object -- as a map[string]interface{}
 */
-func IsRefString (ref_string string) bool { 
-	return strings.HasPrefix(ref_string, SYMBOL_REF_MARK)
-}
-
 func IsRef (ref []string) bool {
 	if (len(ref) == 0) {
 		return false 
 	}
 	return (strings.Compare(SYMBOL_REF_MARK, ref[0]) == 0)
-}
-
-func ParseRefString (ref_string string) []string {
-	tokens := strings.Split(ref_string, SYMBOL_REF_SEPARATOR) 
-
-	if (!IsRef(tokens)) {
-		panic("Invalid reference string: " + ref_string) 
-	}
-	
-	return tokens
 }
 
 func GetObjKeys (obj map[string]interface{}) []string {
@@ -233,18 +218,11 @@ func (env Environment) Clone () Environment {
 }
 
 func (env Environment) Deref (in_ref interface{}) interface{} {
-	var ref []string 
-
-	ref_string, ok := in_ref.(string) 
-	if (ok) {
-		ref = ParseRefString(ref_string)
-	} else {
-		ref, ok = in_ref.([]string)
-		if (!ok) {
-			panic(fmt.Sprintf("Environment deref failed due to invalid reference: %v", in_ref))
-		}
+	ref, ok := in_ref.([]string)
+	if (!ok) {
+		panic(fmt.Sprintf("Environment deref failed due to invalid reference: %v", in_ref))
 	}
-
+	
 	if (!IsRef(ref)) {
 		panic(fmt.Sprintf("The given ref is not a reference: %v", ref))
 	}	
