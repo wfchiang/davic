@@ -133,16 +133,70 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 			panic(fmt.Sprintf("Invalid operation: %v", operation))
 		}
 
-		param := EvalExpr(env, operation[2])
-		opt_lambda := EvalExpr(env, operation[3])
+		opt_lambda := EvalExpr(env, operation[2])
 		lambda, is_lambda := IsLambdaOperation(opt_lambda)
 
+		param := EvalExpr(env, operation[3])
+		
 		if (!is_lambda) {
 			panic(fmt.Sprintf("Invalid lambda given in function call: %v", operation))
 		}
 
 		new_env := env.PushStack(param) 
 		return EvalExpr(new_env, lambda[2]) 
+
+	} else if (strings.Compare(OPT_ARRAY_MAP, opt) == 0) {
+		if (len(operation) != 4) {
+			panic(fmt.Sprintf("Invalid array-map operation: %v : %s", operation, "Exact 4 parameters are required"))
+		} 
+
+		typed_array := CastInterfaceToArray(EvalExpr(env, operation[2]))
+		lambda := EvalExpr(env, operation[3])
+
+		if _, is_lambda := IsLambdaOperation(lambda); !is_lambda {
+			panic(fmt.Sprintf("Invalid lambda for array-map operation: %v : %v", operation, lambda))
+		}
+
+		arr_result := []interface{}{}
+		for _, uneval_arr_element := range typed_array {
+			arr_element := EvalExpr(env, uneval_arr_element)
+			opt_fcall := []interface{}{SYMBOL_OPT_MARK, OPT_FUNC_CALL, lambda, arr_element}
+			eval_result := EvalExpr(env, opt_fcall)
+			arr_result = append(arr_result, eval_result) 
+		}
+
+		return arr_result
+
+	} else if (strings.Compare(OPT_ARRAY_FILTER, opt) == 0) {
+		if (len(operation) != 4) {
+			panic(fmt.Sprintf("Invalid array-filter operation: %v : %s", operation, "Exact 4 parameters are required"))
+		} 
+
+		typed_array := CastInterfaceToArray(EvalExpr(env, operation[2]))
+		lambda := EvalExpr(env, operation[3])
+
+		if _, is_lambda := IsLambdaOperation(lambda); !is_lambda {
+			panic(fmt.Sprintf("Invalid lambda for array-filter operation: %v : %v", operation, lambda))
+		}
+
+		opt_array_map := []interface{}{SYMBOL_OPT_MARK, OPT_ARRAY_MAP, typed_array, lambda}
+		arr_tests := CastInterfaceToArray(EvalExpr(env, opt_array_map))
+
+		if (len(typed_array) != len(arr_tests)) {
+			panic(fmt.Sprintf("Unexpected error when evaluating the predicate for array-filter: %v", operation))
+		}
+
+		arr_result := []interface{}{}
+		for p_id,pred := range arr_tests {
+			if (!IsType(TYPE_BOOL, pred)) {
+				panic(fmt.Sprintf("Predicate result is not a boolean for element: %v", p_id))
+			}
+			if (CastInterfaceToBool(pred)) {
+				arr_result = append(arr_result, typed_array[p_id])
+			}
+		}
+
+		return arr_result
 
 	} else {
 		panic(fmt.Sprintf("Invalid/Unsupported evaluation of expression: %v", in_expr))

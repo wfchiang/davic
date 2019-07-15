@@ -25,7 +25,11 @@ const (
 	OPT_FUNC_CALL = "!"
 
 	OPT_RELATION_EQ = "="
+
 	OPT_ARITHMETIC_ADD = "+"
+
+	OPT_ARRAY_MAP    = "-a-map-"
+	OPT_ARRAY_FILTER = "-a-fitler-"
 	
 	OPT_WEBCALL = "OPT_WEBCALL"
 	

@@ -34,7 +34,7 @@ func simpleRecover (t *testing.T) {
 Sample Data
 *********/
 func sampleJsonBytes0 () []byte {
-	return []byte("{\"keyN\":null,\"keyB\":false,\"keyI\":123,\"keyF\":1.23,\"keyS\":\"valS\",\"keyO\":{\"keykeyB\":true},\"keyA\":[1, 2, 3]}")
+	return []byte("{\"keyN\":null,\"keyB\":false,\"keyI\":123,\"keyF\":1.23,\"keyS\":\"valS\",\"keyO\":{\"keykeyB\":true},\"keyA\":[1, 2, 3, 1, 2, 3]}")
 }
 
 func sampleEnvironment0 () Environment {
