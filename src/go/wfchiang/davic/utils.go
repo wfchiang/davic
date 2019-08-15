@@ -76,3 +76,7 @@ func CastInterfaceToObj (value interface{}) map[string]interface{} {
 	}
 	return obj_value
 }
+
+/*
+Http Utils
+*/ 

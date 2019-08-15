@@ -13,6 +13,9 @@ const (
 	SYMBOL_OPT_MARK = "&"
 	SYMBOL_REF_MARK = "#"
 
+	SYMBOL_HTTP_METHOD_GET  = "GET"
+	SYMBOL_HTTP_METHOD_POST = "POST"
+
 	TYPE_NULL   = "null"
 	TYPE_BOOL   = "bool"
 	TYPE_NUMBER = "number"
@@ -31,7 +34,7 @@ const (
 	OPT_ARRAY_MAP    = "-a-map-"
 	OPT_ARRAY_FILTER = "-a-fitler-"
 	
-	OPT_WEBCALL = "OPT_WEBCALL"
+	OPT_HTTP_CALL = "-http-call-"
 	
 	OPT_FIELD_READ = "-fr-"
 	OPT_FIELD_UPDATE = "-fu-"
@@ -188,6 +191,40 @@ func IsLambdaOperation (in_expr interface{}) ([]interface{}, bool) {
 		return nil, false
 	}
 	return operation, true 
+}
+
+func IsHttpOperation (in_expr interface{}) ([]interface{}, bool) {
+	operation, ok := IsOperation(in_expr)
+	if (!ok || len(operation) != 5) {
+		return nil, false
+	}
+
+	// check method 
+	if (!IsType(TYPE_STRING, operation[2])) {
+		return nil, false
+	}
+	str_http_method := CastInterfaceToString(operation[2])
+	if (!ContainsString([]string{SYMBOL_HTTP_METHOD_GET,SYMBOL_HTTP_METHOD_POST}, str_http_method)) {
+		return nil, false
+	}
+
+	// check headers 
+	if (!IsType(TYPE_OBJ, operation[3])) {
+		return nil, false 
+	}
+
+	// check body 
+	if (
+		!IsType(TYPE_NULL, operation[4]) && 
+		!IsType(TYPE_BOOL, operation[4]) && 
+		!IsType(TYPE_NUMBER, operation[4]) && 
+		!IsType(TYPE_STRING, operation[4]) && 
+		!IsType(TYPE_ARRAY, operation[4]) && 
+		!IsType(TYPE_OBJ, operation[4])) {
+		return nil, false
+	}
+			
+	return operation, true
 }
 
 /*

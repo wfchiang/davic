@@ -89,6 +89,38 @@ func TestIsRef0 (t *testing.T) {
 	}
 }
 
+func TestIsHttpOperation (t *testing.T) {
+	http_opt := []interface{}{SYMBOL_OPT_MARK, OPT_HTTP_CALL, SYMBOL_HTTP_METHOD_GET, map[string]interface{}{}, map[string]interface{}{}}
+	if _, is_http_opt := IsHttpOperation(http_opt); simpleIsViolation(TYPE_BOOL, true, is_http_opt) {
+		t.Error("")
+	}
+
+	http_opt = []interface{}{SYMBOL_OPT_MARK, OPT_HTTP_CALL, SYMBOL_HTTP_METHOD_POST, map[string]interface{}{}, map[string]interface{}{}}
+	if _, is_http_opt := IsHttpOperation(http_opt); simpleIsViolation(TYPE_BOOL, true, is_http_opt) {
+		t.Error("")
+	}
+
+	http_opt = []interface{}{SYMBOL_OPT_MARK, OPT_HTTP_CALL, "not a valid method", map[string]interface{}{}, map[string]interface{}{}}
+	if _, is_http_opt := IsHttpOperation(http_opt); simpleIsViolation(TYPE_BOOL, false, is_http_opt) {
+		t.Error("")
+	}
+
+	http_opt = []interface{}{SYMBOL_OPT_MARK, OPT_HTTP_CALL, SYMBOL_HTTP_METHOD_GET, "not a valid headers", map[string]interface{}{}}
+	if _, is_http_opt := IsHttpOperation(http_opt); simpleIsViolation(TYPE_BOOL, false, is_http_opt) {
+		t.Error("")
+	}
+
+	http_opt = []interface{}{SYMBOL_OPT_MARK, OPT_HTTP_CALL, SYMBOL_HTTP_METHOD_GET, map[string]interface{}{}, "this is still correct for now"}
+	if _, is_http_opt := IsHttpOperation(http_opt); simpleIsViolation(TYPE_BOOL, true, is_http_opt) {
+		t.Error("")
+	}
+
+	http_opt = []interface{}{SYMBOL_OPT_MARK, OPT_HTTP_CALL, SYMBOL_HTTP_METHOD_GET, "missing some parameter(s)"}
+	if _, is_http_opt := IsHttpOperation(http_opt); simpleIsViolation(TYPE_BOOL, false, is_http_opt) {
+		t.Error("")
+	}
+}
+
 func TestGetValue0 (t *testing.T) {
 	defer simpleRecover(t) 
 
