@@ -40,9 +40,10 @@ const (
 	OPT_FIELD_READ = "-fr-"
 	OPT_FIELD_UPDATE = "-fu-"
 
-	KEY_HTTP_STATUS  = "status"; 
-	KEY_HTTP_HEADERS = "headers"; 
-	KEY_HTTP_BODY    = "body"; 
+	KEY_HTTP_STATUS  = "status" 
+	KEY_HTTP_METHOD  = "method"
+	KEY_HTTP_HEADERS = "headers"
+	KEY_HTTP_BODY    = "body"
 )
 
 /*
@@ -199,33 +200,42 @@ func IsLambdaOperation (in_expr interface{}) ([]interface{}, bool) {
 }
 
 func IsHttpOperation (in_expr interface{}) ([]interface{}, bool) {
-	operation, ok := IsOperation(in_expr)
-	if (!ok || len(operation) != 5) {
+	operation, ok := IsUnaryOperation(in_expr)
+	if (!ok || operation[1] != OPT_HTTP_CALL) {
 		return nil, false
 	}
-
+	if (!IsType(TYPE_OBJ, operation[2])) {
+		return nil, false 
+	}
+	http_request := CastInterfaceToObj(operation[2])
+	
 	// check method 
-	if (!IsType(TYPE_STRING, operation[2])) {
+	http_method, ok := http_request[KEY_HTTP_METHOD]
+	if (!ok || !IsType(TYPE_STRING, http_method)) {
 		return nil, false
 	}
-	str_http_method := CastInterfaceToString(operation[2])
-	if (!ContainsString([]string{SYMBOL_HTTP_METHOD_GET,SYMBOL_HTTP_METHOD_POST}, str_http_method)) {
+	if (!ContainsString([]string{SYMBOL_HTTP_METHOD_GET,SYMBOL_HTTP_METHOD_POST}, CastInterfaceToString(http_method))) {
 		return nil, false
 	}
 
 	// check headers 
-	if (!IsType(TYPE_OBJ, operation[3])) {
-		return nil, false 
+	http_headers, ok := http_request[KEY_HTTP_HEADERS]
+	if (!ok || !IsType(TYPE_OBJ, http_headers)) {
+		return nil, false
 	}
 
 	// check body 
+	http_body, ok := http_request[KEY_HTTP_BODY]
+	if (!ok) {
+		return nil, false
+	}
 	if (
-		!IsType(TYPE_NULL, operation[4]) && 
-		!IsType(TYPE_BOOL, operation[4]) && 
-		!IsType(TYPE_NUMBER, operation[4]) && 
-		!IsType(TYPE_STRING, operation[4]) && 
-		!IsType(TYPE_ARRAY, operation[4]) && 
-		!IsType(TYPE_OBJ, operation[4])) {
+		!IsType(TYPE_NULL, http_body) && 
+		!IsType(TYPE_BOOL, http_body) && 
+		!IsType(TYPE_NUMBER, http_body) && 
+		!IsType(TYPE_STRING, http_body) && 
+		!IsType(TYPE_ARRAY, http_body) && 
+		!IsType(TYPE_OBJ, http_body)) {
 		return nil, false
 	}
 			
