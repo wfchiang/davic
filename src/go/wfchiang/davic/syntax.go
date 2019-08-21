@@ -2,6 +2,7 @@ package davic
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 	"encoding/json"
 	"container/list"
@@ -38,6 +39,10 @@ const (
 	
 	OPT_FIELD_READ = "-fr-"
 	OPT_FIELD_UPDATE = "-fu-"
+
+	KEY_HTTP_STATUS  = "status"; 
+	KEY_HTTP_HEADERS = "headers"; 
+	KEY_HTTP_BODY    = "body"; 
 )
 
 /*
@@ -225,6 +230,64 @@ func IsHttpOperation (in_expr interface{}) ([]interface{}, bool) {
 	}
 			
 	return operation, true
+}
+
+func IsHttpHeaders (in_expr interface{}) (map[string]interface{}, bool) {
+	if (!IsType(TYPE_OBJ, in_expr)) {
+		return nil, false 
+	}	
+
+	return CastInterfaceToObj(in_expr), true
+} 
+
+func IsHttpBody (in_expr interface{}) (interface{}, bool) {
+	if (
+		IsType(TYPE_NULL, in_expr) || 
+		IsType(TYPE_BOOL, in_expr) || 
+		IsType(TYPE_NUMBER, in_expr) || 
+		IsType(TYPE_STRING, in_expr) || 
+		IsType(TYPE_ARRAY, in_expr) || 
+		IsType(TYPE_OBJ, in_expr)) {
+		return in_expr, true
+	}
+	return nil, false 
+} 
+
+func IsHttpResponse (in_expr interface{}) (map[string]interface{}, bool) {
+	if (!IsType(TYPE_OBJ, in_expr)) {
+		return nil, false 
+	}
+	http_res := CastInterfaceToObj(in_expr)
+
+	// check http status 
+	http_status, ok := http_res[KEY_HTTP_STATUS]
+	if (!ok || !IsType(TYPE_STRING, http_status)) {
+		return nil, false
+	}
+	_, err := strconv.Atoi(CastInterfaceToString(http_status))
+	if (err != nil) {
+		return nil, false 
+	}
+
+	// check http headers 
+	http_headers, ok := http_res[KEY_HTTP_HEADERS]
+	if (!ok) {
+		return nil, false 
+	}
+	if _, ok := IsHttpHeaders(http_headers); !ok {
+		return nil, false 
+	}
+
+	// check http body 
+	http_body, ok := http_res[KEY_HTTP_BODY]
+	if (!ok) {
+		return nil, false 
+	}
+	if _, ok := IsHttpBody(http_body); !ok {
+		return nil, false 
+	}
+
+	return http_res, true
 }
 
 /*

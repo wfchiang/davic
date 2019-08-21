@@ -121,6 +121,79 @@ func TestIsHttpOperation (t *testing.T) {
 	}
 }
 
+func TestIsHttpResponse (t *testing.T) {
+	defer simpleRecover(t) 
+
+	http_res := map[string]interface{}{
+		KEY_HTTP_STATUS:"200", 
+		KEY_HTTP_HEADERS:map[string]interface{}{}, 
+		KEY_HTTP_BODY:map[string]interface{}{}}
+	if _, is_http_res := IsHttpResponse(http_res); !is_http_res {
+		t.Error("")
+	}
+
+	http_res = map[string]interface{}{
+		KEY_HTTP_STATUS:"not a valid status", 
+		KEY_HTTP_HEADERS:map[string]interface{}{}, 
+		KEY_HTTP_BODY:map[string]interface{}{}}
+	if _, is_http_res := IsHttpResponse(http_res); is_http_res {
+		t.Error("")
+	}
+
+	http_res = map[string]interface{}{
+		KEY_HTTP_STATUS:"200", 
+		KEY_HTTP_HEADERS:"not a valid headers",  
+		KEY_HTTP_BODY:map[string]interface{}{}}
+	if _, is_http_res := IsHttpResponse(http_res); is_http_res {
+		t.Error("")
+	}
+
+	http_res = map[string]interface{}{
+		KEY_HTTP_STATUS:"200", 
+		KEY_HTTP_HEADERS:map[string]interface{}{}, 
+		KEY_HTTP_BODY:"still a valid body"}
+	if _, is_http_res := IsHttpResponse(http_res); !is_http_res {
+		t.Error("")
+	}
+
+	http_res = map[string]interface{}{
+		KEY_HTTP_STATUS:200, 
+		KEY_HTTP_HEADERS:map[string]interface{}{}, 
+		KEY_HTTP_BODY:map[string]interface{}{}}
+	if _, is_http_res := IsHttpResponse(http_res); is_http_res {
+		t.Error("")
+	}
+
+	http_res = map[string]interface{}{
+		KEY_HTTP_STATUS:200.0, 
+		KEY_HTTP_HEADERS:map[string]interface{}{}, 
+		KEY_HTTP_BODY:map[string]interface{}{}}
+	if _, is_http_res := IsHttpResponse(http_res); is_http_res {
+		t.Error("")
+	}
+
+	http_res = map[string]interface{}{
+		KEY_HTTP_HEADERS:map[string]interface{}{}, 
+		KEY_HTTP_BODY:map[string]interface{}{}}
+	if _, is_http_res := IsHttpResponse(http_res); is_http_res {
+		t.Error("")
+	}
+
+	http_res = map[string]interface{}{
+		KEY_HTTP_STATUS:"200",  
+		KEY_HTTP_BODY:map[string]interface{}{}}
+	if _, is_http_res := IsHttpResponse(http_res); is_http_res {
+		t.Error("")
+	}
+
+	http_res = map[string]interface{}{
+		KEY_HTTP_STATUS:"200", 
+		KEY_HTTP_HEADERS:map[string]interface{}{}}
+	if _, is_http_res := IsHttpResponse(http_res); is_http_res {
+		t.Error("")
+	}
+}
+
 func TestGetValue0 (t *testing.T) {
 	defer simpleRecover(t) 
 
