@@ -90,5 +90,5 @@ func MakeHttpCall (http_request map[string]interface{}) (http_response map[strin
 	// http_headers := http_request[KEY_HTTP_HEADERS]
 	// http_body := http_request[KEY_HTTP_BODY]
 
-	return nil // for now... 
+	return nil // for now... https://medium.com/@masnun/making-http-requests-in-golang-dd123379efe7
 }
