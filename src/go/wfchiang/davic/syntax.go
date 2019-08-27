@@ -42,6 +42,7 @@ const (
 
 	KEY_HTTP_STATUS  = "status" 
 	KEY_HTTP_METHOD  = "method"
+	KEY_HTTP_URL     = "url"
 	KEY_HTTP_HEADERS = "headers"
 	KEY_HTTP_BODY    = "body"
 )
@@ -261,7 +262,55 @@ func IsHttpBody (in_expr interface{}) (interface{}, bool) {
 		return in_expr, true
 	}
 	return nil, false 
-} 
+}
+
+func IsHttpRequest (in_expr interface{}) (map[string]interface{}, bool) {
+	if (!IsType(TYPE_OBJ, in_expr)) {
+		return nil, false 
+	}
+	http_request := CastInterfaceToObj(in_expr)
+
+	// check method 
+	http_method, ok := http_request[KEY_HTTP_METHOD]
+	if (!ok || !IsType(TYPE_STRING, http_method)) {
+		return nil, false
+	}
+	if (!ContainsString([]string{SYMBOL_HTTP_METHOD_GET,SYMBOL_HTTP_METHOD_POST}, CastInterfaceToString(http_method))) {
+		return nil, false
+	}
+
+	// check URL 
+	val_url, ok := http_request[KEY_HTTP_METHOD]
+	if (!ok) {
+		return nil, false 
+	}
+	if (!IsType(TYPE_STRING, val_url)) {
+		return nil, false 
+	}
+
+	// check headers 
+	val_headers, ok := http_request[KEY_HTTP_HEADERS]
+	if (!ok) {
+		return nil, false 
+	}
+	_, ok = IsHttpHeaders(val_headers)
+	if (!ok) {
+		return nil, false
+	}
+
+	// check body 
+	val_body, ok := http_request[KEY_HTTP_BODY]
+	if (!ok) {
+		return nil, false 
+	}
+	_, ok = IsHttpBody(val_body)
+	if (!ok) {
+		return nil, false
+	}
+
+	return http_request, true
+}
+
 
 func IsHttpResponse (in_expr interface{}) (map[string]interface{}, bool) {
 	if (!IsType(TYPE_OBJ, in_expr)) {

@@ -92,6 +92,7 @@ func TestIsRef0 (t *testing.T) {
 func TestIsHttpOperation (t *testing.T) {
 	http_request := map[string]interface{}{
 		KEY_HTTP_METHOD:SYMBOL_HTTP_METHOD_GET,
+		KEY_HTTP_URL:"http://127.0.0.1", 
 		KEY_HTTP_HEADERS:map[string]interface{}{},
 		KEY_HTTP_BODY:map[string]interface{}{},
 	}

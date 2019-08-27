@@ -80,3 +80,15 @@ func CastInterfaceToObj (value interface{}) map[string]interface{} {
 /*
 Http Utils
 */ 
+func MakeHttpCall (http_request map[string]interface{}) (http_response map[string]interface{}) {
+	if _, ok := IsHttpRequest(http_request); !ok {
+		panic("MakeHttpCall cannot proceed with a non-http-request")
+	}
+
+	// http_method := http_request[KEY_HTTP_METHOD]
+	// http_url := http_request[KEY_HTTP_URL]
+	// http_headers := http_request[KEY_HTTP_HEADERS]
+	// http_body := http_request[KEY_HTTP_BODY]
+
+	return nil // for now... 
+}
