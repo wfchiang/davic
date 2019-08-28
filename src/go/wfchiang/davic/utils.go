@@ -96,11 +96,10 @@ func MarshalInterfaceToBytes (value interface{}) []byte {
 /*
 Http Utils
 */ 
-func GetHttpClient () *http.Client {
-	return &http.Client{}
-}
-
-func MakeHttpCall (obj_request map[string]interface{}) (obj_response map[string]interface{}) {
+func MakeHttpCall (http_client *http.Client, obj_request map[string]interface{}) (obj_response map[string]interface{}) {
+	if (http_client == nil) {
+		panic("MakeHttpCall cannot proceed with nil http_client")
+	}
 	if _, ok := IsHttpRequest(obj_request); !ok {
 		panic("MakeHttpCall cannot proceed with a non-http-request")
 	}
@@ -119,7 +118,7 @@ func MakeHttpCall (obj_request map[string]interface{}) (obj_response map[string]
 	// TODO: Insert the http headers 
 
 	// Make the call 
-	http_response, err := GetHttpClient().Do(http_request)
+	http_response, err := http_client.Do(http_request)
 	if (err != nil) {
 		panic("MakeHttpCall failed on http.Client.Do")
 	}
