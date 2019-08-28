@@ -2,7 +2,12 @@ package davic
 
 import (
 	"fmt"
+	"strconv"
+	"bytes"
 	"strings"
+	"io/ioutil"
+	"net/http"
+	"encoding/json"
 )
 
 func ContainsString (string_array []string, target string) bool {
@@ -77,18 +82,62 @@ func CastInterfaceToObj (value interface{}) map[string]interface{} {
 	return obj_value
 }
 
+/* 
+Marshaling
+*/ 
+func MarshalInterfaceToBytes (value interface{}) []byte {
+	barr, err := json.Marshal(value)
+	if (err != nil) {
+		panic("MarshalInterfaceToBytes failed")
+	}
+	return barr
+}
+
 /*
 Http Utils
 */ 
-func MakeHttpCall (http_request map[string]interface{}) (http_response map[string]interface{}) {
-	if _, ok := IsHttpRequest(http_request); !ok {
+func GetHttpClient () *http.Client {
+	return &http.Client{}
+}
+
+func MakeHttpCall (obj_request map[string]interface{}) (obj_response map[string]interface{}) {
+	if _, ok := IsHttpRequest(obj_request); !ok {
 		panic("MakeHttpCall cannot proceed with a non-http-request")
 	}
 
-	// http_method := http_request[KEY_HTTP_METHOD]
-	// http_url := http_request[KEY_HTTP_URL]
+	http_method        := CastInterfaceToString(obj_request[KEY_HTTP_METHOD])
+	http_url           := CastInterfaceToString(obj_request[KEY_HTTP_URL])
 	// http_headers := http_request[KEY_HTTP_HEADERS]
-	// http_body := http_request[KEY_HTTP_BODY]
+	http_body_reader   := bytes.NewReader(MarshalInterfaceToBytes(obj_request[KEY_HTTP_BODY]))
 
-	return nil // for now... https://medium.com/@masnun/making-http-requests-in-golang-dd123379efe7
+	// Create the http.Request obj 
+	http_request, err := http.NewRequest(http_method, http_url, http_body_reader)
+	if (err != nil) {
+		panic("MakeHttpCall failed on http.NewRequest")
+	}
+
+	// TODO: Insert the http headers 
+
+	// Make the call 
+	http_response, err := GetHttpClient().Do(http_request)
+	if (err != nil) {
+		panic("MakeHttpCall failed on http.Client.Do")
+	}
+
+	// Get the response status 
+	obj_response = map[string]interface{}{}
+	obj_response[KEY_HTTP_STATUS]  = strconv.Itoa(http_response.StatusCode)
+
+	// TODO: Get the response headers 
+	obj_response[KEY_HTTP_HEADERS] = map[string]interface{}{}
+
+	// Get the response body 
+	defer http_response.Body.Close()
+	bytes_resp_body, err := ioutil.ReadAll(http_response.Body)
+	if (err != nil) {
+		panic("MakeHttpCall failed on ioutil.ReadAll")
+	}	
+	obj_response[KEY_HTTP_BODY] = CreateObjFromBytes(bytes_resp_body)
+
+	return obj_response
 }
