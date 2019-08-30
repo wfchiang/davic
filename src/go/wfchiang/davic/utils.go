@@ -104,10 +104,10 @@ func MakeHttpCall (http_client *http.Client, obj_request map[string]interface{})
 		panic("MakeHttpCall cannot proceed with a non-http-request")
 	}
 
-	http_method        := CastInterfaceToString(obj_request[KEY_HTTP_METHOD])
-	http_url           := CastInterfaceToString(obj_request[KEY_HTTP_URL])
-	// http_headers := http_request[KEY_HTTP_HEADERS]
-	http_body_reader   := bytes.NewReader(MarshalInterfaceToBytes(obj_request[KEY_HTTP_BODY]))
+	http_method      := CastInterfaceToString(obj_request[KEY_HTTP_METHOD])
+	http_url         := CastInterfaceToString(obj_request[KEY_HTTP_URL])
+	http_headers     := CastInterfaceToObj(obj_request[KEY_HTTP_HEADERS])
+	http_body_reader := bytes.NewReader(MarshalInterfaceToBytes(obj_request[KEY_HTTP_BODY]))
 
 	// Create the http.Request obj 
 	http_request, err := http.NewRequest(http_method, http_url, http_body_reader)
@@ -116,6 +116,13 @@ func MakeHttpCall (http_client *http.Client, obj_request map[string]interface{})
 	}
 
 	// TODO: Insert the http headers 
+	for hkey, kval := range http_headers {
+		if _, ok := http_request.Header[hkey]; ok {
+			http_request.Header[hkey] = append(http_request.Header[hkey], CastInterfaceToString(kval))
+		} else {
+			http_request.Header[hkey] = []string {CastInterfaceToString(kval)}
+		}
+	}
 
 	// Make the call 
 	http_response, err := http_client.Do(http_request)
@@ -125,10 +132,19 @@ func MakeHttpCall (http_client *http.Client, obj_request map[string]interface{})
 
 	// Get the response status 
 	obj_response = map[string]interface{}{}
-	obj_response[KEY_HTTP_STATUS]  = strconv.Itoa(http_response.StatusCode)
+	obj_response[KEY_HTTP_STATUS] = strconv.Itoa(http_response.StatusCode)
 
 	// TODO: Get the response headers 
-	obj_response[KEY_HTTP_HEADERS] = map[string]interface{}{}
+	obj_headers := map[string]interface{}{}
+	for hkey, hval := range http_response.Header {
+		str_hval := strings.Join(hval,";")
+		if _, ok := obj_headers[hkey]; ok {
+			obj_headers[hkey] = CastInterfaceToString(obj_headers[hkey]) + str_hval
+		} else {
+			obj_headers[hkey] = str_hval
+		}
+	}
+	obj_response[KEY_HTTP_HEADERS] = obj_headers
 
 	// Get the response body 
 	defer http_response.Body.Close()
