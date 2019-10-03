@@ -93,9 +93,53 @@ func MarshalInterfaceToBytes (value interface{}) []byte {
 	return barr
 }
 
+/* 
+Object Utils 
+*/ 
+func GetObjKeys (obj map[string]interface{}) []string {
+	var keys []string
+	for k, _ := range obj {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
+func GetObjValue (obj interface{}, key []string) interface{} {
+	if (len(key) == 0) {
+		return obj
+	}
+
+	kv, ok := obj.(map[string]interface{})
+	if (!ok) {
+		panic(fmt.Sprintf("Cannot get obj value from a non-obj value: %v", obj))
+	}
+
+	var retv interface{} = nil
+	
+	for i, k := range key {
+		if (i == (len(key)-1)) {
+			retv = kv[k]
+			break
+		}
+		kv = kv[k].(map[string]interface{})
+	}
+
+	return retv
+}
+
 /*
 Http Utils
 */ 
+func ReadHttpHeader (obj_resp_header map[string]interface{}, header_key string) (interface{}, bool) {
+	header_keys := GetObjKeys(obj_resp_header)
+	for _, k := range header_keys {
+		if (strings.ToLower(k) == strings.ToLower(header_key)) {
+			return obj_resp_header[k], true
+		}
+	}
+	return nil, false
+}
+
 func MakeHttpCall (http_client *http.Client, obj_request map[string]interface{}) (obj_response map[string]interface{}) {
 	if (http_client == nil) {
 		panic("MakeHttpCall cannot proceed with nil http_client")

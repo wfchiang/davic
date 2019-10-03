@@ -207,54 +207,6 @@ func TestIsHttpResponse (t *testing.T) {
 	}
 }
 
-func TestGetValue0 (t *testing.T) {
-	defer simpleRecover(t) 
-
-	obj := CreateObjFromBytes(sampleJsonBytes0())
-
-	if val := GetObjValue(obj,[]string{"keyN"}); simpleIsViolation(TYPE_NULL, nil, val) {
-		t.Error("")
-	}
-
-	if val := GetObjValue(obj,[]string{"no-such-key"}); simpleIsViolation(TYPE_NULL, nil, val) {
-		t.Error("")
-	}
-
-	if val := GetObjValue(obj,[]string{"keyB"}); simpleIsViolation(TYPE_BOOL, false, val) {
-		t.Error("") 
-	}
-
-	if val := GetObjValue(obj,[]string{"keyI"}); simpleIsViolation(TYPE_BOOL, true, IsType(TYPE_NUMBER, val)) {
-		t.Error("")
-	}
-	if val := GetObjValue(obj,[]string{"keyI"}); simpleIsViolation(TYPE_NUMBER, 123, val) {
-		t.Error("")
-	}
-	
-	if val := GetObjValue(obj,[]string{"keyF"}); simpleIsViolation(TYPE_NUMBER, 1.23, val) {
-		t.Error("")
-	}
-
-	if val := GetObjValue(obj,[]string{"keyS"}); simpleIsViolation(TYPE_STRING, "valS", val) {
-		t.Error("")
-	}
-	
-	if val := GetObjValue(obj,[]string{"keyO"}); (!IsType(TYPE_OBJ, val)) {
-		t.Error("")
-	}
-
-	if val := GetObjValue(obj,[]string{"keyO", "keykeyB"}); simpleIsViolation(TYPE_BOOL, true, val) {
-		t.Error("")
-	}
-}
-
-func TestTestGetValue1 (t *testing.T) {
-	defer simpleExpectPanic(t)
-
-	obj := CreateObjFromBytes(sampleJsonBytes0())
-	GetObjValue(obj,[]string{"no-such-key","no-more-such-key"})
-}
-
 func TestEnvironmentDeref0 (t *testing.T) {
 	defer simpleRecover(t)
 

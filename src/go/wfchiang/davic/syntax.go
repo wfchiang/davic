@@ -110,37 +110,6 @@ func IsRef (ref []string) bool {
 	return (strings.Compare(SYMBOL_REF_MARK, ref[0]) == 0)
 }
 
-func GetObjKeys (obj map[string]interface{}) []string {
-	var keys []string
-	for k, _ := range obj {
-		keys = append(keys, k)
-	}
-	return keys
-}
-
-func GetObjValue (obj interface{}, key []string) interface{} {
-	if (len(key) == 0) {
-		return obj
-	}
-
-	kv, ok := obj.(map[string]interface{})
-	if (!ok) {
-		panic(fmt.Sprintf("Cannot get obj value from a non-obj value: %v", obj))
-	}
-
-	var retv interface{} = nil
-	
-	for i, k := range key {
-		if (i == (len(key)-1)) {
-			retv = kv[k]
-			break
-		}
-		kv = kv[k].(map[string]interface{})
-	}
-
-	return retv
-}
-
 func CreateObjFromBytes (byte_array []byte) map[string]interface{} {
 	var new_jnode map[string]interface{}
 	json.Unmarshal(byte_array, &new_jnode)

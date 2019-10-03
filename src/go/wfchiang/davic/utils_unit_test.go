@@ -1,7 +1,7 @@
 package davic 
 
 import (
-//	"fmt"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -19,15 +19,52 @@ func TestContainsString (t *testing.T) {
 	}
 }
 
-func mockTestingServerHandler (http_resp_writer http.ResponseWriter, http_request *http.Request) {
-	reqt_method := http_request.Method 
-	reqt_path   := http_request.URL.Path
+func TestGetValue0 (t *testing.T) {
+	defer simpleRecover(t) 
 
-	if (reqt_method == SYMBOL_HTTP_METHOD_GET && reqt_path == "/TestMakeHttpCall/0") {
-		http_resp_writer.WriteHeader(200)
-	} else {
-		http_resp_writer.WriteHeader(404)
+	obj := CreateObjFromBytes(sampleJsonBytes0())
+
+	if val := GetObjValue(obj,[]string{"keyN"}); simpleIsViolation(TYPE_NULL, nil, val) {
+		t.Error("")
 	}
+
+	if val := GetObjValue(obj,[]string{"no-such-key"}); simpleIsViolation(TYPE_NULL, nil, val) {
+		t.Error("")
+	}
+
+	if val := GetObjValue(obj,[]string{"keyB"}); simpleIsViolation(TYPE_BOOL, false, val) {
+		t.Error("") 
+	}
+
+	if val := GetObjValue(obj,[]string{"keyI"}); simpleIsViolation(TYPE_BOOL, true, IsType(TYPE_NUMBER, val)) {
+		t.Error("")
+	}
+	if val := GetObjValue(obj,[]string{"keyI"}); simpleIsViolation(TYPE_NUMBER, 123, val) {
+		t.Error("")
+	}
+	
+	if val := GetObjValue(obj,[]string{"keyF"}); simpleIsViolation(TYPE_NUMBER, 1.23, val) {
+		t.Error("")
+	}
+
+	if val := GetObjValue(obj,[]string{"keyS"}); simpleIsViolation(TYPE_STRING, "valS", val) {
+		t.Error("")
+	}
+	
+	if val := GetObjValue(obj,[]string{"keyO"}); (!IsType(TYPE_OBJ, val)) {
+		t.Error("")
+	}
+
+	if val := GetObjValue(obj,[]string{"keyO", "keykeyB"}); simpleIsViolation(TYPE_BOOL, true, val) {
+		t.Error("")
+	}
+}
+
+func TestTestGetValue1 (t *testing.T) {
+	defer simpleExpectPanic(t)
+
+	obj := CreateObjFromBytes(sampleJsonBytes0())
+	GetObjValue(obj,[]string{"no-such-key","no-more-such-key"})
 }
 
 func TestMakeHttpCall (t *testing.T) {
@@ -56,8 +93,19 @@ func TestMakeHttpCall (t *testing.T) {
 
 	// TestMakeHttpCall/0
 	obj_reqt[KEY_HTTP_URL]     = mock_http_server.URL + "/TestMakeHttpCall/0"
-	obj_resp = MakeHttpCall(mock_http_client, obj_reqt)
+	obj_resp                   = MakeHttpCall(mock_http_client, obj_reqt)
 	if (obj_resp[KEY_HTTP_STATUS] != "200") {
 		t.Error("")
+	}
+
+	// TestMakeHttpCall/1 
+	obj_reqt[KEY_HTTP_URL]     = mock_http_server.URL + "/TestMakeHttpCall/1"
+	obj_resp                   = MakeHttpCall(mock_http_client, obj_reqt) 
+	obj_resp_headers          := CastInterfaceToObj(obj_resp[KEY_HTTP_HEADERS])
+	if hv, ok := ReadHttpHeader(obj_resp_headers, "header1"); (obj_resp[KEY_HTTP_STATUS] != "200" || !ok || hv != "value1") {
+		t.Error("")
+	}
+	if hv, ok := ReadHttpHeader(obj_resp_headers, "bad-header1"); (obj_resp[KEY_HTTP_STATUS] != "200" || ok) {
+		t.Error(fmt.Sprintf("Impossible value of bad-header1: %v", hv))
 	}
 }

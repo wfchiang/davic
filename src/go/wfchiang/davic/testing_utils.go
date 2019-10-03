@@ -2,6 +2,7 @@ package davic
 
 import (
 	"testing"
+	"net/http"
 )
 
 /********
@@ -42,4 +43,21 @@ func sampleEnvironment0 () Environment {
 	env0 := CreateNewEnvironment()
 	env0.Store = obj0
 	return env0
+}
+
+/********
+Mock Testing Handler
+********/ 
+func mockTestingServerHandler (http_resp_writer http.ResponseWriter, http_request *http.Request) {
+	reqt_method := http_request.Method 
+	reqt_path   := http_request.URL.Path
+
+	if (reqt_method == SYMBOL_HTTP_METHOD_GET && reqt_path == "/TestMakeHttpCall/0") {
+		http_resp_writer.WriteHeader(200)
+	} else if (reqt_method == SYMBOL_HTTP_METHOD_GET && reqt_path == "/TestMakeHttpCall/1") {
+		http_resp_writer.Header().Set("header1", "value1")
+		http_resp_writer.WriteHeader(200)
+	} else {
+		http_resp_writer.WriteHeader(404)
+	}
 }
