@@ -336,14 +336,18 @@ func (env Environment) Clone () Environment {
 	
 	new_env.Store = CopyValue(env.Store)
 
-	new_env.Stack = list.New()
-	stack_element := env.Stack.Front()
-	for i := 0 ; i < STACK_DEPTH ; i++ {
-		if (stack_element == nil) {
-			break
+	if (env.Stack == nil) {
+		new_env.Stack = nil
+	} else {
+		new_env.Stack = list.New()
+		stack_element := env.Stack.Front()
+		for i := 0 ; i < STACK_DEPTH ; i++ {
+			if (stack_element == nil) {
+				break
+			}
+			new_env.Stack.PushBack(CopyValue(stack_element.Value))
+			stack_element = stack_element.Next()
 		}
-		new_env.Stack.PushBack(CopyValue(stack_element.Value))
-		stack_element = stack_element.Next()
 	}
 
 	return new_env

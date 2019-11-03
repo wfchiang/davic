@@ -267,3 +267,37 @@ func TestEnvironmentStack1 (t *testing.T) {
 	env0 := sampleEnvironment0()
 	env0.ReadStack()
 }
+
+func TestEnvironmentClone (t *testing.T) {
+	defer simpleRecover(t)
+
+	// Scenario of empty stack 
+	env0 := sampleEnvironment0()
+	if env0.Stack == nil || env0.Stack.Len() != 0 {
+		t.Error("")
+	}
+	clone_env0 := env0.Clone()
+	if clone_env0.Stack == nil || env0.Stack.Len() != 0 {
+		t.Error("")
+	}
+
+	// Non-empty stack scenario 
+	env0 = env0.PushStack(env0.Store)
+	if env0.Stack == nil || env0.Stack.Len() != 1 {
+		t.Error("")
+	}
+	clone_env0 = env0.Clone()
+	if clone_env0.Stack == nil || env0.Stack.Len() != 1 {
+		t.Error("")
+	}
+
+	// Nil stack scenario -->> even though this scenario is not expected ... 
+	env0.Stack = nil
+	if env0.Stack != nil {
+		t.Error("")
+	}
+	clone_env0 = env0.Clone()
+	if clone_env0.Stack != nil {
+		t.Error("")
+	}
+}
