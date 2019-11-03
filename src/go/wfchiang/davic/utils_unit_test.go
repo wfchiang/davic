@@ -92,20 +92,33 @@ func TestMakeHttpCall (t *testing.T) {
 	}
 
 	// TestMakeHttpCall/0
-	obj_reqt[KEY_HTTP_URL]     = mock_http_server.URL + "/TestMakeHttpCall/0"
-	obj_resp                   = MakeHttpCall(mock_http_client, obj_reqt)
+	obj_reqt[KEY_HTTP_URL] = mock_http_server.URL + "/TestMakeHttpCall/0"
+	obj_resp               = MakeHttpCall(mock_http_client, obj_reqt)
 	if (obj_resp[KEY_HTTP_STATUS] != "200") {
 		t.Error("")
 	}
 
 	// TestMakeHttpCall/1 
-	obj_reqt[KEY_HTTP_URL]     = mock_http_server.URL + "/TestMakeHttpCall/1"
-	obj_resp                   = MakeHttpCall(mock_http_client, obj_reqt) 
-	obj_resp_headers          := CastInterfaceToObj(obj_resp[KEY_HTTP_HEADERS])
+	obj_reqt[KEY_HTTP_URL]  = mock_http_server.URL + "/TestMakeHttpCall/1"
+	obj_resp                = MakeHttpCall(mock_http_client, obj_reqt) 
+	obj_resp_headers       := CastInterfaceToObj(obj_resp[KEY_HTTP_HEADERS])
 	if hv, ok := ReadHttpHeader(obj_resp_headers, "header1"); (obj_resp[KEY_HTTP_STATUS] != "200" || !ok || hv != "value1") {
 		t.Error("")
 	}
 	if hv, ok := ReadHttpHeader(obj_resp_headers, "bad-header1"); (obj_resp[KEY_HTTP_STATUS] != "200" || ok) {
 		t.Error(fmt.Sprintf("Impossible value of bad-header1: %v", hv))
+	}
+
+	// TestMakeHttpCall/2
+	obj_reqt[KEY_HTTP_URL]     = mock_http_server.URL + "/TestMakeHttpCall/2"
+	obj_reqt[KEY_HTTP_HEADERS] = map[string]interface{}{"Header2":"value2"}
+	obj_resp                   = MakeHttpCall(mock_http_client, obj_reqt) 
+	if (obj_resp[KEY_HTTP_STATUS] != "200") {
+		t.Error("")
+	}
+	obj_reqt[KEY_HTTP_HEADERS] = map[string]interface{}{"Header2":"value3"}
+	obj_resp                   = MakeHttpCall(mock_http_client, obj_reqt) 
+	if (obj_resp[KEY_HTTP_STATUS] != "400") {
+		t.Error("")
 	}
 }

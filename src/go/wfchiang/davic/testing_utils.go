@@ -57,6 +57,12 @@ func mockTestingServerHandler (http_resp_writer http.ResponseWriter, http_reques
 	} else if (reqt_method == SYMBOL_HTTP_METHOD_GET && reqt_path == "/TestMakeHttpCall/1") {
 		http_resp_writer.Header().Set("header1", "value1")
 		http_resp_writer.WriteHeader(200)
+	} else if (reqt_method == SYMBOL_HTTP_METHOD_GET && reqt_path == "/TestMakeHttpCall/2") {
+		if hv := http_request.Header.Get("Header2"); hv == "value2" {
+			http_resp_writer.WriteHeader(200)	
+		} else {
+			http_resp_writer.WriteHeader(400)
+		}		
 	} else {
 		http_resp_writer.WriteHeader(404)
 	}

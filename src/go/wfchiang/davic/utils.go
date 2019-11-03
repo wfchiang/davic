@@ -159,7 +159,7 @@ func MakeHttpCall (http_client *http.Client, obj_request map[string]interface{})
 		panic("MakeHttpCall failed on http.NewRequest")
 	}
 
-	// TODO: Insert the http headers 
+	// Insert the http headers 
 	for hkey, kval := range http_headers {
 		if _, ok := http_request.Header[hkey]; ok {
 			http_request.Header[hkey] = append(http_request.Header[hkey], CastInterfaceToString(kval))
@@ -178,7 +178,7 @@ func MakeHttpCall (http_client *http.Client, obj_request map[string]interface{})
 	obj_response = map[string]interface{}{}
 	obj_response[KEY_HTTP_STATUS] = strconv.Itoa(http_response.StatusCode)
 
-	// TODO: Get the response headers 
+	// Get the response headers 
 	obj_headers := map[string]interface{}{}
 	for hkey, hval := range http_response.Header {
 		str_hval := strings.Join(hval,";")
