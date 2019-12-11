@@ -82,6 +82,15 @@ func CastInterfaceToObj (value interface{}) map[string]interface{} {
 	return obj_value
 }
 
+func CastInterfaceToStringArray (value interface{}) []string {
+	arr := CastInterfaceToArray(value)
+	var str_arr	[]string 
+	for _, s := range arr {
+		str_arr = append(str_arr, CastInterfaceToString(s)) 
+	}
+	return str_arr
+}
+
 /* 
 Marshaling
 */ 

@@ -32,7 +32,7 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 	} else if (strings.Compare(OPT_STORE_READ, opt) == 0) {
 		operation, ok = IsUnaryOperation(in_expr)
 		if (!ok) {
-			panic(fmt.Sprintf("Invalid operation: %v", operation))
+			panic(fmt.Sprintf("Invalid store-read operation: %v", operation))
 		}
 		opd := EvalExpr(env, operation[2])
 		if (!IsType(TYPE_STRING, opd)) {
@@ -44,7 +44,7 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 	} else if (strings.Compare(OPT_STORE_WRITE, opt) == 0) {
 		operation, ok = IsBinaryOperation(in_expr)
 		if (!ok) {
-			panic(fmt.Sprintf("Invalid operation: %v", operation))
+			panic(fmt.Sprintf("Invalid store-write operation: %v", operation))
 		}
 		vkey := EvalExpr(env, operation[2])
 		sval := EvalExpr(env, operation[3])
@@ -83,6 +83,16 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 		
 		return add_result
 
+	} else if (strings.Compare(OPT_OBJ_READ, opt) == 0) {
+		if (len(operation) != 4) {
+			panic(fmt.Sprintf("Invalid field-read operation: %v : %s", operation, "mal-form"))
+		}
+
+		obj := EvalExpr(env, operation[2])
+		key := CastInterfaceToStringArray(EvalExpr(env, operation[3]))
+
+		return GetObjValue(obj, key)
+
 	} else if (strings.Compare(OPT_FIELD_READ, opt) == 0) {
 		if (len(operation) != 4) {
 			panic(fmt.Sprintf("Invalid field-read operation: %v : %s", operation, "mal-form"))
@@ -90,7 +100,7 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 
 		container := EvalExpr(env, operation[2])
 		key := EvalExpr(env, operation[3])
-
+		
 		if (IsType(TYPE_OBJ, container) && IsType(TYPE_STRING, key)) { // If the container is an object ...
 			typed_container := CastInterfaceToObj(container)
 			typed_key := CastInterfaceToString(key)

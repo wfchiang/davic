@@ -324,6 +324,17 @@ func TestEvalExpr17 (t *testing.T) {
 	}
 }
 
+func TestEvalExpr18 (t *testing.T) {
+	defer simpleRecover(t)
+
+	env0 := sampleEnvironment0()
+	opt_obj_read := []interface{}{SYMBOL_OPT_MARK, OPT_OBJ_READ, env0.Store, []interface{}{"keyO", "keykeyB"}}
+	val0 := EvalExpr(env0, opt_obj_read)
+	if (simpleIsViolation(TYPE_BOOL, true, val0)) {
+		t.Error("")
+	}
+}
+
 /********
 Tests of Execution 
 ********/ 

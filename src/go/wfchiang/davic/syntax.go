@@ -38,6 +38,8 @@ const (
 	OPT_ARRAY_FILTER = "-a-fitler-"
 	
 	OPT_HTTP_CALL = "-http-call-"
+
+	OPT_OBJ_READ = "-obj-read-"
 	
 	OPT_FIELD_READ = "-fr-"
 	OPT_FIELD_UPDATE = "-fu-"
@@ -324,7 +326,7 @@ func IsHttpResponse (in_expr interface{}) (map[string]interface{}, bool) {
 Environment definition
 */
 type Environment struct {
-	Store interface{} // A Store is a single-level object. So, the Read and the Write methods take a string as key 
+	Store map[string]interface{} // A Store is a single-level object. So, the Read and the Write methods take a string as key 
 	Stack *list.List
 }
 
@@ -336,7 +338,7 @@ func CreateNewEnvironment () Environment {
 func (env Environment) Clone () Environment {
 	new_env := CreateNewEnvironment() 
 	
-	new_env.Store = CopyValue(env.Store)
+	new_env.Store = CastInterfaceToObj(CopyValue(env.Store))
 
 	if (env.Stack == nil) {
 		new_env.Stack = nil
