@@ -327,7 +327,7 @@ type Environment struct {
 }
 
 func CreateNewEnvironment () Environment {
-	newEnv := Environment{Store:nil,Stack:list.New()}
+	newEnv := Environment{Store:map[string]interface{}{},Stack:list.New()}
 	return newEnv
 }
 
@@ -351,6 +351,26 @@ func (env Environment) Clone () Environment {
 	}
 
 	return new_env
+}
+
+func (env Environment) WriteStore (vkey string, val interface{}) Environment {
+	if (!IsType(TYPE_OBJ, env.Store)) {
+		panic("Environment is corruptted -- the Store is not an object")
+	}
+	new_env := env.Clone() 
+	if (!IsType(TYPE_OBJ, new_env.Store)) {
+		panic("Environment (the clone) is corruptted -- the Store is not an object")
+	}
+	new_env_store := CastInterfaceToObj(new_env.Store) 
+	new_env_store[vkey] = val
+	return new_env
+}
+
+func (env Environment) ReadStore (vkey string) interface{} {
+	if (!IsType(TYPE_OBJ, env.Store)) {
+		panic("Environment is corruptted -- the Store is not an object")
+	}
+	return GetObjValue(env.Store, []string{vkey})
 }
 
 func (env Environment) Deref (in_ref interface{}) interface{} {

@@ -230,6 +230,29 @@ func TestEnvironmentDeref0 (t *testing.T) {
 	}
 }
 
+func TestEnvironmentStore0 (t *testing.T) {
+	defer simpleRecover(t)
+
+	my_key  := "wife"
+	my_wife := "Jenny"
+
+	env0 := CreateNewEnvironment()
+	wife := env0.ReadStore(my_key)
+	if (simpleIsViolation(TYPE_NULL, nil, wife)) {
+		t.Error("")
+	}
+
+	env1 := env0.WriteStore(my_key, my_wife)
+	wife = env0.ReadStore(my_key)
+	if (simpleIsViolation(TYPE_NULL, nil, wife)) {
+		t.Error("")
+	} 
+	wife = env1.ReadStore(my_key)
+	if (simpleIsViolation(TYPE_STRING, my_wife, wife)) {
+		t.Error("")
+	}
+}
+
 func TestEnvironmentStack0 (t *testing.T) {
 	defer simpleRecover(t)
 

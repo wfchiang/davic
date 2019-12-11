@@ -1,20 +1,41 @@
 import os
+import sys
 
+CMD_COPY   = 'cp -rf'
+CMD_REMOVE = 'rm -rf'
 GOPATH = os.environ['GOPATH']
-GO_SRC_DIR = GOPATH + '/src'
+GO_SRC_DIR = os.path.abspath(GOPATH + '/src')
 
-PACKAGE_NAME = "wfchiang/davic"
+PACKAGE_NAME = 'wfchiang/davic'
+
+# check and setup the properties 
+print ('==== Check and Setup the Properties ====')
+CMD_RM_SOURCE = ''
+CMD_COPY_SOURCE = ''
+
+if (sys.platform in ['win32', 'win64']): 
+    CMD_COPY = 'xcopy /E /I'
+    CMD_REMOVE = 'del'
+    CMD_RM_SOURCE = CMD_REMOVE + ' ' + os.path.abspath(GO_SRC_DIR+'/'+PACKAGE_NAME)
+    CMD_COPY_SOURCE = CMD_COPY + ' ' + os.path.abspath('./wfchiang/*') + ' ' + os.path.abspath(GO_SRC_DIR+'/wfchiang')
+else: 
+    CMD_RM_SOURCE = CMD_REMOVE + ' ' + os.path.abspath(GO_SRC_DIR+'/'+PACKAGE_NAME)
+    CMD_COPY_SOURCE = CMD_COPY + ' ' + os.path.abspath('./wfchiang') + ' ' + GO_SRC_DIR
+
+print ('copy command: ' + CMD_COPY)
+print ('remove command: ' + CMD_REMOVE)
+print ('copy source command: ' + CMD_COPY_SOURCE)
+print ('remove source command: ' + CMD_RM_SOURCE)
+print ('')
 
 # remove the source folder 
 print ('==== Remove the Source Folder ====')
-CMD_RM_SOURCE = 'rm -rf ' + GO_SRC_DIR + '/' + PACKAGE_NAME
 print (CMD_RM_SOURCE)
 os.system(CMD_RM_SOURCE)
 print ('')
 
 # copy the go source 
 print ('==== Copy the Source Files ====')
-CMD_COPY_SOURCE = 'cp -rf ./wfchiang ' + GO_SRC_DIR
 print (CMD_COPY_SOURCE)
 os.system(CMD_COPY_SOURCE)
 print ('')
