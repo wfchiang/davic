@@ -251,6 +251,13 @@ func TestEnvironmentStore0 (t *testing.T) {
 	if (simpleIsViolation(TYPE_STRING, my_wife, wife)) {
 		t.Error("")
 	}
+
+	wrong_wife := "wei-fan"
+	env2 := env1.WriteStore(my_key, wrong_wife)
+	wife = env2.ReadStore(my_key)
+	if (simpleIsViolation(TYPE_STRING, wrong_wife, wife)) {
+		t.Error("")
+	}
 }
 
 func TestEnvironmentStack0 (t *testing.T) {

@@ -297,3 +297,26 @@ func TestEvalExpr16 (t *testing.T) {
 		t.Error("")
 	}
 }
+
+func TestEvalExpr17 (t *testing.T) {
+	defer simpleRecover(t)
+
+	env0 := sampleEnvironment0()
+	opt_store_read := []interface{}{SYMBOL_OPT_MARK, OPT_STORE_READ, "keyB"}
+
+	val0 := EvalExpr(env0, opt_store_read)	
+	if (simpleIsViolation(TYPE_BOOL, false, val0)) {
+		t.Error("")
+	}
+
+	opt_store_write := []interface{}{SYMBOL_OPT_MARK, OPT_STORE_WRITE, "keyB", true}
+	env1 := EvalExpr(env0, opt_store_write).(Environment)
+	val0 = EvalExpr(env0, opt_store_read)
+	val1 := EvalExpr(env1, opt_store_read)
+	if (simpleIsViolation(TYPE_BOOL, false, val0)) {
+		t.Error("")
+	}
+	if (simpleIsViolation(TYPE_BOOL, true, val1)) {
+		t.Error("")
+	}
+}

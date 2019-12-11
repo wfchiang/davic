@@ -28,6 +28,32 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 	if (strings.Compare(OPT_STACK_READ, opt) == 0) {
 		// should NOT evaluate the stack value 
 		return env.ReadStack()
+
+	} else if (strings.Compare(OPT_STORE_READ, opt) == 0) {
+		operation, ok = IsUnaryOperation(in_expr)
+		if (!ok) {
+			panic(fmt.Sprintf("Invalid operation: %v", operation))
+		}
+		opd := EvalExpr(env, operation[2])
+		if (!IsType(TYPE_STRING, opd)) {
+			panic(fmt.Sprintf("Invalid type of the store-read operation: %v", operation))
+		}
+		str_opd := CastInterfaceToString(opd)
+		return env.ReadStore(str_opd)
+
+	} else if (strings.Compare(OPT_STORE_WRITE, opt) == 0) {
+		operation, ok = IsBinaryOperation(in_expr)
+		if (!ok) {
+			panic(fmt.Sprintf("Invalid operation: %v", operation))
+		}
+		vkey := EvalExpr(env, operation[2])
+		sval := EvalExpr(env, operation[3])
+		if (!IsType(TYPE_STRING, vkey)) {
+			panic(fmt.Sprintf("Invalid type of the store-write operation (the key must be a string)"))
+		}
+		str_vkey := CastInterfaceToString(vkey)
+		// Here we will return an Environment -- since a Store-Write operation will change the environment... 
+		return env.WriteStore(str_vkey, sval)
 	
 	} else if (strings.Compare(OPT_RELATION_EQ, opt) == 0) {
 		operation, ok = IsBinaryOperation(in_expr)

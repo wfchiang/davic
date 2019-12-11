@@ -24,6 +24,8 @@ const (
 	TYPE_ARRAY  = "array"
 	TYPE_OBJ    = "object"
 
+	OPT_STORE_READ = "-store-read-"
+	OPT_STORE_WRITE = "-store-write-"
 	OPT_STACK_READ = "~"
 	OPT_LAMBDA = "^"
 	OPT_FUNC_CALL = "!"
