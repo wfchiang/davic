@@ -228,3 +228,18 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 		panic(fmt.Sprintf("Invalid/Unsupported evaluation of expression: %v", in_expr))
 	}
 }
+
+/********
+State changes 
+********/
+func Execute (env Environment, opt_list []interface{}) Environment {
+	curr_env := env
+	for _, opt := range opt_list {
+		eval_result := EvalExpr(curr_env, opt)
+		new_env, ok := eval_result.(Environment)
+		if (ok) { // If the evaluation result is not an Environment, just discard the result 
+			curr_env = new_env 
+		}
+	}
+	return curr_env
+}

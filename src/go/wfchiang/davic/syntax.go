@@ -324,7 +324,7 @@ func IsHttpResponse (in_expr interface{}) (map[string]interface{}, bool) {
 Environment definition
 */
 type Environment struct {
-	Store interface{}
+	Store interface{} // A Store is a single-level object. So, the Read and the Write methods take a string as key 
 	Stack *list.List
 }
 

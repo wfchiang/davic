@@ -5,6 +5,9 @@ import (
 	"testing"
 )
 
+/********
+Tests of EvalExpr
+********/
 func TestEvalExpr0 (t *testing.T) {
 	defer simpleRecover(t)
 
@@ -317,6 +320,48 @@ func TestEvalExpr17 (t *testing.T) {
 		t.Error("")
 	}
 	if (simpleIsViolation(TYPE_BOOL, true, val1)) {
+		t.Error("")
+	}
+}
+
+/********
+Tests of Execution 
+********/ 
+func TestExecution0 (t *testing.T) {
+	defer simpleRecover(t)
+
+	env0 := sampleEnvironment0()
+	opt_sread_0 := []interface{}{SYMBOL_OPT_MARK, OPT_STORE_READ, "keyB"}
+	opt_sread_1 := []interface{}{SYMBOL_OPT_MARK, OPT_STORE_READ, "keyO"}
+
+	val0 := CastInterfaceToBool(EvalExpr(env0, opt_sread_0))
+	val1 := CastInterfaceToObj(EvalExpr(env0, opt_sread_1))
+	if (simpleIsViolation(TYPE_BOOL, false, val0)) {
+		t.Error("")
+	}
+	if (simpleIsViolation(TYPE_BOOL, true, val1["keykeyB"])) {
+		t.Error("")
+	}
+
+	opt_swrite_0 := []interface{}{SYMBOL_OPT_MARK, OPT_STORE_WRITE, "keyB", true}
+	opt_swrite_1 := []interface{}{SYMBOL_OPT_MARK, OPT_STORE_WRITE, "keyO", map[string]interface{}{"wife":"Jenny"}}
+	env1 := Execute(env0, []interface{}{opt_swrite_0, opt_swrite_1})
+	
+	val0 = CastInterfaceToBool(EvalExpr(env0, opt_sread_0))
+	val1 = CastInterfaceToObj(EvalExpr(env0, opt_sread_1))
+	if (simpleIsViolation(TYPE_BOOL, false, val0)) {
+		t.Error("")
+	}
+	if (simpleIsViolation(TYPE_BOOL, true, val1["keykeyB"])) {
+		t.Error("")
+	}
+
+	val2 := CastInterfaceToBool(EvalExpr(env1, opt_sread_0))
+	val3 := CastInterfaceToObj(EvalExpr(env1, opt_sread_1))
+	if (simpleIsViolation(TYPE_BOOL, true, val2)) {
+		t.Error("")
+	}
+	if (simpleIsViolation(TYPE_STRING, "Jenny", val3["wife"])) {
 		t.Error("")
 	}
 }
