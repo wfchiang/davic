@@ -11,8 +11,8 @@ import (
 const (
 	STACK_DEPTH = 5
 
-	SYMBOL_OPT_MARK = "&"
-	SYMBOL_REF_MARK = "#"
+	SYMBOL_OPT_MARK = "-opt-"
+	SYMBOL_REF_MARK = "-ref-"
 
 	SYMBOL_HTTP_METHOD_GET  = "GET"
 	SYMBOL_HTTP_METHOD_POST = "POST"
@@ -26,13 +26,13 @@ const (
 
 	OPT_STORE_READ = "-store-read-"
 	OPT_STORE_WRITE = "-store-write-"
-	OPT_STACK_READ = "~"
-	OPT_LAMBDA = "^"
-	OPT_FUNC_CALL = "!"
+	OPT_STACK_READ = "-stack-read-"
+	OPT_LAMBDA = "-lambda-"
+	OPT_FUNC_CALL = "-fcall-"
 
-	OPT_RELATION_EQ = "="
+	OPT_RELATION_EQ = "-rel-eq-"
 
-	OPT_ARITHMETIC_ADD = "+"
+	OPT_ARITHMETIC_ADD = "-arith-add-"
 
 	OPT_ARRAY_MAP    = "-a-map-"
 	OPT_ARRAY_FILTER = "-a-fitler-"

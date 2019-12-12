@@ -1,3 +1,3 @@
-# Data Validation in Cloud
+# DAVIC: Don't Ask Why I Named it as DAVIC
 
-Hmm... let's see how far I can go
+**Davic** framework allows you to transit computations in networks. Cool? (Nah... I think it is cool.)
