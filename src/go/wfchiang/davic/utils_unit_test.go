@@ -22,40 +22,36 @@ func TestContainsString (t *testing.T) {
 func TestGetValue0 (t *testing.T) {
 	defer simpleRecover(t) 
 
-	obj := CreateObjFromBytes(sampleJsonBytes0())
+	obj := sampleObj0()
 
-	if val := GetObjValue(obj,[]string{"keyN"}); simpleIsViolation(TYPE_NULL, nil, val) {
+	if val := ReadObjValue(obj,[]string{"keyN"}); simpleIsViolation(TYPE_NULL, nil, val) {
 		t.Error("")
 	}
 
-	if val := GetObjValue(obj,[]string{"no-such-key"}); simpleIsViolation(TYPE_NULL, nil, val) {
-		t.Error("")
-	}
-
-	if val := GetObjValue(obj,[]string{"keyB"}); simpleIsViolation(TYPE_BOOL, false, val) {
+	if val := ReadObjValue(obj,[]string{"keyB"}); simpleIsViolation(TYPE_BOOL, false, val) {
 		t.Error("") 
 	}
 
-	if val := GetObjValue(obj,[]string{"keyI"}); simpleIsViolation(TYPE_BOOL, true, IsType(TYPE_NUMBER, val)) {
+	if val := ReadObjValue(obj,[]string{"keyI"}); simpleIsViolation(TYPE_BOOL, true, IsType(TYPE_NUMBER, val)) {
 		t.Error("")
 	}
-	if val := GetObjValue(obj,[]string{"keyI"}); simpleIsViolation(TYPE_NUMBER, 123, val) {
-		t.Error("")
-	}
-	
-	if val := GetObjValue(obj,[]string{"keyF"}); simpleIsViolation(TYPE_NUMBER, 1.23, val) {
-		t.Error("")
-	}
-
-	if val := GetObjValue(obj,[]string{"keyS"}); simpleIsViolation(TYPE_STRING, "valS", val) {
+	if val := ReadObjValue(obj,[]string{"keyI"}); simpleIsViolation(TYPE_NUMBER, 123, val) {
 		t.Error("")
 	}
 	
-	if val := GetObjValue(obj,[]string{"keyO"}); (!IsType(TYPE_OBJ, val)) {
+	if val := ReadObjValue(obj,[]string{"keyF"}); simpleIsViolation(TYPE_NUMBER, 1.23, val) {
 		t.Error("")
 	}
 
-	if val := GetObjValue(obj,[]string{"keyO", "keykeyB"}); simpleIsViolation(TYPE_BOOL, true, val) {
+	if val := ReadObjValue(obj,[]string{"keyS"}); simpleIsViolation(TYPE_STRING, "valS", val) {
+		t.Error("")
+	}
+	
+	if val := ReadObjValue(obj,[]string{"keyO"}); (!IsType(TYPE_OBJ, val)) {
+		t.Error("")
+	}
+
+	if val := ReadObjValue(obj,[]string{"keyO", "keykeyB"}); simpleIsViolation(TYPE_BOOL, true, val) {
 		t.Error("")
 	}
 }
@@ -63,8 +59,8 @@ func TestGetValue0 (t *testing.T) {
 func TestTestGetValue1 (t *testing.T) {
 	defer simpleExpectPanic(t)
 
-	obj := CreateObjFromBytes(sampleJsonBytes0())
-	GetObjValue(obj,[]string{"no-such-key","no-more-such-key"})
+	obj := sampleObj0()
+	ReadObjValue(obj,[]string{"no-such-key","no-more-such-key"})
 }
 
 func TestMakeHttpCall (t *testing.T) {
@@ -119,6 +115,85 @@ func TestMakeHttpCall (t *testing.T) {
 	obj_reqt[KEY_HTTP_HEADERS] = map[string]interface{}{"Header2":"value3"}
 	obj_resp                   = MakeHttpCall(mock_http_client, obj_reqt) 
 	if (obj_resp[KEY_HTTP_STATUS] != "400") {
+		t.Error("")
+	}
+}
+
+func TestReadObjValue0 (t *testing.T) {
+	defer simpleRecover(t)
+
+	obj := sampleObj0() 
+	key := []string{"keyS"}
+	val0 := ReadObjValue(obj, key) 
+	if (simpleIsViolation(TYPE_STRING, "valS", val0)) {
+		t.Error("")
+	}
+
+	key = []string{"keyO", "keykeyB"} 
+	val1 := ReadObjValue(obj, key) 
+	if (simpleIsViolation(TYPE_BOOL, true, val1)) {
+		t.Error("")
+	}
+}
+
+func TestReadObjValue1 (t *testing.T) {
+	defer simpleExpectPanic(t) 
+
+	obj := sampleObj0() 
+	key := []string{"keyO", "no-such-key"}
+	val := ReadObjValue(obj, key) 
+	fmt.Println(fmt.Sprintf("???? %v", val))
+}
+
+func TestUpdateObjValue0 (t *testing.T) {
+	defer simpleRecover(t) 
+
+	obj := sampleObj0() 
+	key := []string{"keyO", "keykeyB"}
+	new_obj := UpdateObjValue(obj, key, false) 
+	old_val := ReadObjValue(obj, key) 
+	new_val := ReadObjValue(new_obj, key)
+	if (simpleIsViolation(TYPE_BOOL, true, old_val)) {
+		t.Error("")
+	}
+	if (simpleIsViolation(TYPE_BOOL, false, new_val)) {
+		t.Error("")
+	}
+}
+
+func TestUpdateObjValue1 (t *testing.T) {
+	defer simpleExpectPanic(t)
+
+	obj := sampleObj0() 
+	key := []string{"keyO", "no-such-key"}
+	new_obj := UpdateObjValue(obj, key, false)
+	fmt.Println(fmt.Sprintf(">obj> %v", obj))
+	fmt.Println(fmt.Sprintf(">new_obj> %v", new_obj)) 
+}
+
+func TestWriteObjValue0 (t *testing.T) {
+	defer simpleRecover(t) 
+
+	obj := sampleObj0() 
+	key := []string{"keyO", "keykeyB"}
+	new_obj := WriteObjValue(obj, key, false) 
+	old_val0 := ReadObjValue(obj, key) 
+	new_val0 := ReadObjValue(new_obj, key)
+	if (simpleIsViolation(TYPE_BOOL, true, old_val0)) {
+		t.Error("")
+	}
+	if (simpleIsViolation(TYPE_BOOL, false, new_val0)) {
+		t.Error("")
+	}
+
+	key = []string{"keyO", "newkeykeyS"}
+	new_obj = WriteObjValue(obj, key, "valkeykeyS")
+	_, ok := CastInterfaceToObj(obj["keyO"])["newkeykeyS"]
+	new_val1 := ReadObjValue(new_obj, key)  
+	if (simpleIsViolation(TYPE_BOOL, false, ok)) {
+		t.Error("")
+	}
+	if (simpleIsViolation(TYPE_BOOL, "valkeykeyS", new_val1)) {
 		t.Error("")
 	}
 }

@@ -38,8 +38,12 @@ func sampleJsonBytes0 () []byte {
 	return []byte("{\"keyN\":null,\"keyB\":false,\"keyI\":123,\"keyF\":1.23,\"keyS\":\"valS\",\"keyO\":{\"keykeyB\":true},\"keyA\":[1, 2, 3, 1, 2, 3]}")
 }
 
+func sampleObj0 () map[string]interface{} {
+	return CreateObjFromBytes(sampleJsonBytes0())
+}
+
 func sampleEnvironment0 () Environment {
-	obj0 := CreateObjFromBytes(sampleJsonBytes0())
+	obj0 := sampleObj0()
 	env0 := CreateNewEnvironment()
 	env0.Store = obj0
 	return env0
