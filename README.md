@@ -1,3 +1,3 @@
-# DAVIC: Don't Ask Why I Named it as DAVIC
+# DAVIC: Structured Data as Program
 
 **Davic** framework allows you to transit computations in networks. Cool? (Nah... I think it is cool.)
