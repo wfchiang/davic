@@ -15,9 +15,8 @@ var OPT_HI2YOU = []interface{}{}
 var OPT_DAVIC = []interface{}{}
 
 const (
-	KEY_STORE_HTTP_REQUEST = "reqt"
-	KEY_STORE_HI2YOU_RESPONSE = "hi2you"
-	KEY_STORE_DAVIC_RESPONSE = "davic"
+	KEY_STORE_HTTP_REQUEST  = "http-reqt"
+	KEY_STORE_HTTP_RESPONSE = "http-resp"
 )
 
 // ==== 
@@ -37,12 +36,12 @@ func recoverFromPanic (http_resp http.ResponseWriter, id_service string) {
 func initOperations () {
 	// Hi2You
 	resp_hi2you := map[string]interface{}{"name":nil, "message":"Hi!"}
-	opt_resp_init := []interface{}{davic.SYMBOL_OPT_MARK, davic.OPT_STORE_WRITE, KEY_STORE_HI2YOU_RESPONSE, resp_hi2you}
+	opt_resp_init := []interface{}{davic.SYMBOL_OPT_MARK, davic.OPT_STORE_WRITE, KEY_STORE_HTTP_RESPONSE, resp_hi2you}
 	opt_reqt_read := []interface{}{davic.SYMBOL_OPT_MARK, davic.OPT_STORE_READ, KEY_STORE_HTTP_REQUEST}
-	opt_resp_read := []interface{}{davic.SYMBOL_OPT_MARK, davic.OPT_STORE_READ, KEY_STORE_HI2YOU_RESPONSE}
+	opt_resp_read := []interface{}{davic.SYMBOL_OPT_MARK, davic.OPT_STORE_READ, KEY_STORE_HTTP_RESPONSE}
 	opt_obj_read_name := []interface{}{davic.SYMBOL_OPT_MARK, davic.OPT_OBJ_READ, opt_reqt_read, []interface{}{"name"}}
 	opt_obj_update_name := []interface{}{davic.SYMBOL_OPT_MARK, davic.OPT_OBJ_UPDATE, opt_resp_read, []interface{}{"name"}, opt_obj_read_name}
-	opt_resp_update := []interface{}{davic.SYMBOL_OPT_MARK, davic.OPT_STORE_WRITE, KEY_STORE_HI2YOU_RESPONSE, opt_obj_update_name}
+	opt_resp_update := []interface{}{davic.SYMBOL_OPT_MARK, davic.OPT_STORE_WRITE, KEY_STORE_HTTP_RESPONSE, opt_obj_update_name}
 	OPT_HI2YOU = []interface{}{opt_resp_init, opt_resp_update} 
 }
 
@@ -87,7 +86,7 @@ func hi2youHandler (http_resp http.ResponseWriter, http_reqt *http.Request) {
 	// Prepare the operation 
 	log.Println("Execute OPT_HI2YOU")
 	env = davic.Execute(env, OPT_HI2YOU)
-	obj_resp := env.Store[KEY_STORE_HI2YOU_RESPONSE]
+	obj_resp := env.Store[KEY_STORE_HTTP_RESPONSE]
 
 	resp_body, err := json.Marshal(obj_resp) 
 	if err != nil {
@@ -132,7 +131,7 @@ func davicGoHandler (http_resp http.ResponseWriter, http_reqt *http.Request) {
 
 	// Prepare the operation 
 	env = davic.Execute(env, OPT_DAVIC)
-	davic_result := env.Store[KEY_STORE_DAVIC_RESPONSE]
+	davic_result := env.Store[KEY_STORE_HTTP_RESPONSE]
 	log.Println(fmt.Sprintf("[davic] Result: %v", davic_result))
 
 	resp_body, err := json.Marshal(davic_result) 
