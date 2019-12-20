@@ -36,14 +36,13 @@ const (
 
 	OPT_ARRAY_MAP    = "-a-map-"
 	OPT_ARRAY_FILTER = "-a-fitler-"
+	OPT_ARRAY_GET    = "-a-get-"
 	
 	OPT_HTTP_CALL = "-http-call-"
 
-	OPT_OBJ_READ = "-obj-read-"
+	OPT_OBJ_READ   = "-obj-read-"
+	OPT_OBJ_UPDATE = "-obj-update-"
 	
-	OPT_FIELD_READ = "-fr-"
-	OPT_FIELD_UPDATE = "-fu-"
-
 	KEY_HTTP_STATUS  = "status" 
 	KEY_HTTP_METHOD  = "method"
 	KEY_HTTP_URL     = "url"
@@ -74,34 +73,6 @@ func IsType (type_name string, value interface{}) bool {
 	}
 
 	return is_type
-}
-
-/*
-Copy Value
-*/ 
-func CopyValue (value interface{}) interface{} {
-	if (IsType(TYPE_NULL, value)) {
-		return nil
-	} else if (IsType(TYPE_BOOL, value) || IsType(TYPE_NUMBER, value) || IsType(TYPE_STRING, value)) {
-		return value
-	} else if (IsType(TYPE_ARRAY, value)) {
-		origin_array, _ := value.([]interface{})
-		copy_array := []interface{}{}
-		for _, v := range origin_array {
-			copy_array = append(copy_array, CopyValue(v))
-		}
-		return copy_array
-	} else if (IsType(TYPE_OBJ, value)) {
-		origin_obj, _ := value.(map[string]interface{})
-		copy_obj := map[string]interface{}{}
-		for k, v := range origin_obj {
-			copy_obj[k] = CopyValue(v)
-		}
-		return copy_obj
-	} else {
-		error_message := fmt.Sprintf("Cannot copy value with unknown type. Value: %v", value)
-		panic(error_message)
-	}
 }
 
 /*
@@ -374,7 +345,7 @@ func (env Environment) ReadStore (vkey string) interface{} {
 	if (!IsType(TYPE_OBJ, env.Store)) {
 		panic("Environment is corruptted -- the Store is not an object")
 	}
-	return GetObjValue(env.Store, []string{vkey})
+	return ReadObjValue(env.Store, []string{vkey})
 }
 
 func (env Environment) Deref (in_ref interface{}) interface{} {
@@ -386,7 +357,7 @@ func (env Environment) Deref (in_ref interface{}) interface{} {
 	if (!IsRef(ref)) {
 		panic(fmt.Sprintf("The given ref is not a reference: %v", ref))
 	}	
-	return GetObjValue(env.Store, ref[1:])
+	return ReadObjValue(env.Store, ref[1:])
 }
 
 func (env Environment) PushStack (stack_value interface{}) Environment {

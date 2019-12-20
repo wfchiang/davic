@@ -103,15 +103,15 @@ func TestEvalExpr8 (t *testing.T) {
 
 	env := CreateNewEnvironment() 
 
-	expr1 := []interface{}{SYMBOL_OPT_MARK, OPT_FIELD_READ, []interface{}{1,2,3}, 1.0}
+	expr1 := []interface{}{SYMBOL_OPT_MARK, OPT_ARRAY_GET, []interface{}{1,2,3}, 1.0}
 	eval_result := EvalExpr(env, expr1)
 	if (eval_result != 2) {
 		t.Error("")
 	}
 
 	obj2 := map[string]interface{}{"abc":1, "xyz":"123"}
-	expr2 := []interface{}{SYMBOL_OPT_MARK, OPT_FIELD_READ, obj2, "abc"}
-	expr3 := []interface{}{SYMBOL_OPT_MARK, OPT_FIELD_READ, obj2, "xyz"}
+	expr2 := []interface{}{SYMBOL_OPT_MARK, OPT_OBJ_READ, obj2, []interface{}{"abc"}}
+	expr3 := []interface{}{SYMBOL_OPT_MARK, OPT_OBJ_READ, obj2, []interface{}{"xyz"}}
 	
 	eval_result = EvalExpr(env, expr2)
 	if (eval_result != 1) {
@@ -129,7 +129,7 @@ func TestEvalExpr9 (t *testing.T) {
 
 	env := CreateNewEnvironment() 
 
-	expr1 := []interface{}{SYMBOL_OPT_MARK, OPT_FIELD_READ, []int{1,2,3}, 1.0}
+	expr1 := []interface{}{SYMBOL_OPT_MARK, OPT_ARRAY_GET, []int{1,2,3}, 1.0}
 	eval_result := EvalExpr(env, expr1)
 	if (eval_result != 2) {
 		t.Error("")
@@ -177,8 +177,8 @@ func TestEvalExpr12 (t *testing.T) {
 	env := CreateNewEnvironment() 
 
 	stack_read := []interface{}{SYMBOL_OPT_MARK, OPT_STACK_READ}
-	stack_field_0 := []interface{}{SYMBOL_OPT_MARK, OPT_FIELD_READ, stack_read, 0.0}
-	stack_field_1 := []interface{}{SYMBOL_OPT_MARK, OPT_FIELD_READ, stack_read, 1.0}
+	stack_field_0 := []interface{}{SYMBOL_OPT_MARK, OPT_ARRAY_GET, stack_read, 0.0}
+	stack_field_1 := []interface{}{SYMBOL_OPT_MARK, OPT_ARRAY_GET, stack_read, 1.0}
 
 	opt_add_stack := []interface{}{
 		SYMBOL_OPT_MARK,
@@ -207,26 +207,12 @@ func TestEvalExpr12 (t *testing.T) {
 }
 
 func TestEvalExpr13 (t *testing.T) {
-	defer simpleRecover(t)
+	defer simpleExpectPanic(t)
 
+	arr := []interface{}{1, 2, 3}
 	env := sampleEnvironment0()
-
-	ref := []string{SYMBOL_REF_MARK}
-	old_obj := env.Deref(ref)
-	
-	opt_field_read := []interface{}{SYMBOL_OPT_MARK, OPT_FIELD_READ, old_obj, "keyB"}
-
-	if old_val := CastInterfaceToBool(EvalExpr(env, opt_field_read)); old_val != false {
-		t.Error("")
-	}
-
-	opt_field_update := []interface{}{SYMBOL_OPT_MARK, OPT_FIELD_UPDATE, env.Deref(ref), "keyB", true}
-	new_obj := EvalExpr(env, opt_field_update)
-	opt_field_read[2] = new_obj
-
-	if new_val := CastInterfaceToBool(EvalExpr(env, opt_field_read)); new_val != true {
-		t.Error("")
-	}
+	opt_arr_get := []interface{}{SYMBOL_OPT_MARK, OPT_ARRAY_GET, arr, 1.2}
+	EvalExpr(env, opt_arr_get)
 }
 
 func TestEvalExpr14 (t *testing.T) {
