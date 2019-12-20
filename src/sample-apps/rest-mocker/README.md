@@ -27,17 +27,17 @@ go run main.go
 You will need a REST API client software (such as Postman, Insomnia, etc.). 
 Please use your favorite. 
 
-1. Run the application.
+### 1. Run the application.
 
 Please refer to the **Run** section above. 
 I assume that you are taking the default settings: running it locally, using port 8080, and adding no extra context-root. 
 
-2. Test the app is really running. 
+### 2. Test the app is really running. 
 
 Send a GET request to http://127.0.0.1:8080/ 
 You should get a "200 OK" as the response. 
 
-3. Test the "Davic Configurable Endpoint". 
+### 3. Test the "Davic Configurable Endpoint". 
 
 Send a POST request to http://127.0.0.1:8080/davic/go with the following payload. 
 ```json
@@ -52,7 +52,7 @@ You should get a "200 OK" as the response.
 However, the response payload is "null" -- nothing. 
 It is a sure thing since you have not configured the "Davic Configurable Endpoint". 
 
-4. Test the "Hi2You" Endpoint. 
+### 4. Test the "Hi2You" Endpoint. 
 
 Before we configure the "Davic" endpoint, let's try another "Hi2You" endpoint. 
 
@@ -137,14 +137,14 @@ You should get a "200 OK" with the following JSON payload:
 
 Let's ignore what the payload JSON means for now. Just save it. 
 
-5. Configure the Davic Endpoint 
+### 5. Configure the Davic Endpoint 
 
 Did you save the JSON payload got from http://127.0.0.1:8080/getopt/hi2you
 Send it to http://127.0.0.1:8080/davic/set in a POST request. (No additional headers are needed.) 
 
 You should get a "200 OK" with an empty response body. 
 
-6. Try the Davic Endpoint again. 
+### 6. Try the Davic Endpoint again. 
 
 Let's repeat Step 3 -- send a POST request to http://127.0.0.1:8080/davic/go with the following payload: 
 ```json
