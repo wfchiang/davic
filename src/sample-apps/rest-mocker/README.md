@@ -164,3 +164,15 @@ You should now get the following response:
 The Davic endpoint is now having the exactly same behavior as the Hi2You endpoint! 
 
 How that is possible!? 
+
+### How It Works? 
+
+In a sense, the two endpoints in our demo, Hi2You and Davic, have the same behavior as follows: 
+1. Put the request payload (a JSON object) to the "http-reqt" field in Davic framework's "**Store**" -- you can image the **Store** as the "memory" of the Davic framework. 
+2. Run the Davic program -- the JSON payload we got from the "getopt" endpoint. Remember what we got from Step 4 above? 
+3. Get the object stored in the "http-resp" field of Davic framework's Store, and send it back as the response payload. 
+
+The only different between the Hi2You and the Davic endpoints is that Hi2You has the fixed, pre-configured, Davic program. This Davic program is nothing but a piece of JSON data. 
+On the other hand, the Davic endpoint accepts the program from the "/davic/set" endpoint -- the endpoint we hit in Step 5 of the above demo. 
+
+In this demo, you can see how we define computation at runtime! 
