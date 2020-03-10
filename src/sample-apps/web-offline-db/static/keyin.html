@@ -9,13 +9,20 @@
                 }; 
                 return prettyPrintJson; 
             }); 
-            ngApp.controller('ngCtrl', function($http, $scope){
+            ngApp.controller('ngCtrl', function($http, $scope, $location){
                 $scope.newId = 0; 
                 $scope.newName = "";
                 $scope.newGander = "";
                 $scope.newAge = "";
                 $scope.newEmail = ""; 
-                $scope.dataSet = [];
+                $scope.dataSet = {
+                    "fields": ["id", "name", "gander", "age", "email"], 
+                    "data": []
+                };
+
+                $scope.davicEndpoint = $location.protocol() + "://" + $location.host() + ":" + $location.port() + "/davic"; 
+
+                $scope.testDataSet0 = []; 
 
                 $scope.addData = function() {
                     newData = {
@@ -30,7 +37,7 @@
                     $scope.newGander = "";
                     $scope.newAge = "";
                     $scope.newEmail = "";  
-                    $scope.dataSet.push(newData);
+                    $scope.dataSet["data"].push(newData);
                 }; 
 
                 $scope.printData = function() {
@@ -42,6 +49,10 @@
     <body>
         <div ng-app="ngApp", ng-controller="ngCtrl">
             <h1>Create Your Data JSON Object Here!</h1>
+
+            <hr/>
+
+            <p>Davic endpoint: {{davicEndpoint}}</p>
 
             <hr/>
 

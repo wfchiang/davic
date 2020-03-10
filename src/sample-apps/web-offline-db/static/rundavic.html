@@ -1,0 +1,58 @@
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+        <script>
+            var ngApp = angular.module('ngApp', []);
+            ngApp.filter('prettyJson', function(){
+                function prettyPrintJson(data) {
+                    return JSON.stringify(data, null, '    ');
+                }; 
+                return prettyPrintJson; 
+            }); 
+            ngApp.controller('ngCtrl', function($http, $scope, $location){
+                $scope.davicResult = ""; 
+                $scope.davicEndpoint = $location.protocol() + "://" + $location.host() + ":" + $location.port() + "/davic";      
+
+                $scope.goDavic = function(thisDataState, thisDavicOpt) {
+                    $http({
+                        method: 'POST', 
+                        url: $scope.davicEndpoint, 
+                        data: thisDataState, 
+                        headers: {}
+                    }).then ( 
+                        function success (http_resp) {
+                            console.info("> [rundavic] davic call success"); 
+                            $scope.davicResult = http_resp.data;
+                        }, 
+                        function error (http_resp) {
+                            console.info("> [rundavic] davic call failed");
+                        }
+                    );
+                }; 
+            });
+        </script>
+    </head>
+    <body>
+        <div ng-app="ngApp", ng-controller="ngCtrl">
+            <h1>Let's Play Davic with Data Tables!</h1>
+            <hr/>
+            <p>Davic endpoint: {{davicEndpoint}}</p>
+            <hr/>
+
+            <table>
+                <tr>
+                    <td>Data State</td>
+                    <td>Davic Operation</td>
+                    <td></td>
+                    <td>Result</td>
+                </tr>
+                <tr>
+                    <td><textarea ng-model="dataState"></textarea></td>
+                    <td><textarea ng-model="davicOpt"></textarea></td>
+                    <td><button ng-click="goDavic(dataState, davicOpt)">Go!</button></td>
+                    <td><pre>{{davicResult}}</pre></td>
+                </tr>
+            </table>
+        </div>
+    </body>
+</html>

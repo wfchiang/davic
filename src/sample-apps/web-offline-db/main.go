@@ -39,6 +39,11 @@ func homepageHandler (http_resp http.ResponseWriter, http_reqt *http.Request) {
 	fmt.Fprintf(http_resp, "Web-Offline-DB is Here!")
 }
 
+func davicHandler (http_resp http.ResponseWriter, http_reqt *http.Request) {
+	log.Println("Davic is Hit!")
+	fmt.Fprintf(http_resp, "Yo")
+}
+
 // ====
 // Main
 // ====
@@ -50,6 +55,7 @@ func main () {
 	mux_router := mux.NewRouter()
 
 	mux_router.PathPrefix("/pages/").Handler(http.StripPrefix("/pages/", file_server))
+	mux_router.HandleFunc("/davic", davicHandler).Methods("POST")
 	mux_router.HandleFunc("/", homepageHandler)
 
 	http.Handle("/", mux_router)
