@@ -5,10 +5,10 @@ import (
 	"log"
 	// "strings"
 	"net/http"
-	// "encoding/json"
+	"encoding/json"
 	"github.com/gorilla/mux"
-	// "io/ioutil"
-	// "wfchiang/davic"
+	"io/ioutil"
+	"wfchiang/davic"
 )
 
 const (
@@ -40,8 +40,45 @@ func homepageHandler (http_resp http.ResponseWriter, http_reqt *http.Request) {
 }
 
 func davicHandler (http_resp http.ResponseWriter, http_reqt *http.Request) {
+	defer recoverFromPanic(http_resp, "davic")
+
 	log.Println("Davic is Hit!")
-	fmt.Fprintf(http_resp, "Yo")
+
+	// Read the request body 
+	bytes_reqt_body, err := ioutil.ReadAll(http_reqt.Body)
+	if err != nil {
+		panic("Failed to read the request body")
+	}
+
+	reqt_body := string(bytes_reqt_body)
+	log.Println("Davic/Go is Hit! Body: " + reqt_body)
+
+	// Convert the string type request body to object
+	reqt_obj := davic.CreateObjFromBytes(bytes_reqt_body)
+	
+	_, ok := reqt_obj["data"]
+	if (!ok) {
+		panic("Data field is missed in the request object")
+	}
+	opt_obj, ok := reqt_obj["opt"]
+	if (!ok) {
+		panic("Opt field is missed in the request object")
+	}
+
+	// Setup the Davic environment 
+	env := davic.CreateNewEnvironment()
+	env.Store = davic.CastInterfaceToObj(reqt_obj)
+
+	// Execute the operation 
+	rel_obj := davic.EvalExpr(env, opt_obj)
+
+	// Marshal the response 
+	resp_body, err := json.Marshal(rel_obj) 
+	if err != nil {
+		panic(fmt.Sprintf("Response marshalling failed: %v", err))
+	} 
+	
+	fmt.Fprintf(http_resp, string(resp_body))
 }
 
 // ====

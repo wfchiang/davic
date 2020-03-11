@@ -13,11 +13,23 @@
                 $scope.davicResult = ""; 
                 $scope.davicEndpoint = $location.protocol() + "://" + $location.host() + ":" + $location.port() + "/davic";      
 
+                $scope.examples = []; 
+                $scope.examples[0] = {
+                    "data": {"id":1}, 
+                    "opt": ["-opt-", "-obj-read-", ["-opt-", "-store-read-", "data"], ["id"]]
+                }; 
+
                 $scope.goDavic = function(thisDataState, thisDavicOpt) {
+                    let obj_data = JSON.parse(thisDataState); 
+                    let obj_opt = JSON.parse(thisDavicOpt); 
+
                     $http({
                         method: 'POST', 
                         url: $scope.davicEndpoint, 
-                        data: thisDataState, 
+                        data: {
+                            "data": obj_data, 
+                            "opt": obj_opt
+                        }, 
                         headers: {}
                     }).then ( 
                         function success (http_resp) {
@@ -53,6 +65,19 @@
                     <td><pre>{{davicResult}}</pre></td>
                 </tr>
             </table>
+
+            <h2>Examples</h2>
+            <table border=1>
+                <tr>
+                    <td>Data State</td>
+                    <td>Davic Operation</td>
+                </tr>
+                <tr>
+                    <td>{{examples[0]["data"] | prettyJson}}</td>
+                    <td>{{examples[0]["opt"] | prettyJson}}</td>
+                </tr>
+            </table>
+            <p></p>
         </div>
     </body>
 </html>
