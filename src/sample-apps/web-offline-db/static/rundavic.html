@@ -41,6 +41,11 @@
                         }
                     );
                 }; 
+
+                $scope.applyExample = function(obj_data, obj_opt) {
+                    $scope.dataState = JSON.stringify(obj_data, null, '    ');
+                    $scope.davicOpt = JSON.stringify(obj_opt, null, '    '); 
+                }; 
             });
         </script>
     </head>
@@ -69,12 +74,16 @@
             <h2>Examples</h2>
             <table border=1>
                 <tr>
+                    <td>Example #</td>
                     <td>Data State</td>
                     <td>Davic Operation</td>
+                    <td></td>
                 </tr>
-                <tr>
-                    <td>{{examples[0]["data"] | prettyJson}}</td>
-                    <td>{{examples[0]["opt"] | prettyJson}}</td>
+                <tr ng-repeat="(key,exp) in examples">
+                    <td>{{key}}</td>
+                    <td><pre>{{exp["data"] | prettyJson}}</pre></td>
+                    <td><pre>{{exp["opt"] | prettyJson}}</pre></td>
+                    <td><button ng-click="applyExample(exp['data'],exp['opt'])">Apply</button></td>
                 </tr>
             </table>
             <p></p>
