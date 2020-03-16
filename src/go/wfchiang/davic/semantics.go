@@ -67,8 +67,10 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 			return (lhs == rhs)
 		} else if (IsType(TYPE_NUMBER, lhs) && IsType(TYPE_NUMBER, rhs)) {
 			return (lhs == rhs)
+		} else if (IsType(TYPE_STRING, lhs) && IsType(TYPE_STRING, rhs)) {
+			return (lhs == rhs)
 		} else {
-			panic(fmt.Sprintf("Invalid operation: %v", operation))
+			panic(fmt.Sprintf("Operation %v cannot compare the lhs (%v) and the rhs (%v): %v", OPT_RELATION_EQ, lhs, rhs, operation))
 		}
 
 	} else if (strings.Compare(OPT_ARITHMETIC_ADD, opt) == 0) {

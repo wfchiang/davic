@@ -16,7 +16,13 @@
                 $scope.examples = []; 
                 $scope.examples[0] = {
                     "data": {"id":1}, 
-                    "opt": ["-opt-", "-obj-read-", ["-opt-", "-store-read-", "data"], ["id"]]
+                    "opt": ["-opt-", "-obj-read-", ["-opt-", "-store-read-", "data"], ["id"]], 
+                    "note": "Get the value of field \"id\""
+                }; 
+                $scope.examples[1] = {
+                    "data": {"id":0, "type":"A"},
+                    "opt": ["-opt-", "-rel-eq-", "A", ["-opt-", "-obj-read-", ["-opt-", "-store-read-", "data"], ["type"]]], 
+                    "note": "Check if the \"type\" field of the object is \"A\""
                 }; 
 
                 $scope.goDavic = function(thisDataState, thisDavicOpt) {
@@ -45,6 +51,7 @@
                 $scope.applyExample = function(obj_data, obj_opt) {
                     $scope.dataState = JSON.stringify(obj_data, null, '    ');
                     $scope.davicOpt = JSON.stringify(obj_opt, null, '    '); 
+                    $scope.davicResult = ""; 
                 }; 
             });
         </script>
@@ -78,12 +85,14 @@
                     <td>Data State</td>
                     <td>Davic Operation</td>
                     <td></td>
+                    <td>Note</td>
                 </tr>
                 <tr ng-repeat="(key,exp) in examples">
                     <td>{{key}}</td>
                     <td><pre>{{exp["data"] | prettyJson}}</pre></td>
                     <td><pre>{{exp["opt"] | prettyJson}}</pre></td>
                     <td><button ng-click="applyExample(exp['data'],exp['opt'])">Apply</button></td>
+                    <td><pre>{{exp["note"]}}</pre></td>
                 </tr>
             </table>
             <p></p>
