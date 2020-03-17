@@ -35,7 +35,7 @@ const (
 	OPT_ARITHMETIC_ADD = "-arith-add-"
 
 	OPT_ARRAY_MAP    = "-a-map-"
-	OPT_ARRAY_FILTER = "-a-fitler-"
+	OPT_ARRAY_FILTER = "-a-filter-"
 	OPT_ARRAY_GET    = "-a-get-"
 	
 	OPT_HTTP_CALL = "-http-call-"

@@ -21,32 +21,37 @@ func TestEvalExpr0 (t *testing.T) {
 	}
 }
 
-func TestEvalExpr1 (t *testing.T) {
+func TestEvalExprOptRelationEq0 (t *testing.T) {
 	defer simpleExpectPanic(t)
 
 	env := CreateNewEnvironment()
+
 	expr := []interface{}{SYMBOL_OPT_MARK, OPT_RELATION_EQ, 1, 1}
-
-	EvalExpr(env, expr) 
-}
-
-func TestEvalExpr2 (t *testing.T) {
-	defer simpleRecover(t)
-
-	env := CreateNewEnvironment()
-	expr := []interface{}{SYMBOL_OPT_MARK, OPT_RELATION_EQ, 1.0, 1.0}
 	eval_result := EvalExpr(env, expr) 
 	if (eval_result != true) {
 		t.Error("")
 	}
-}
 
-func TestEvalExpr3 (t *testing.T) {
-	defer simpleRecover(t)
+	expr = []interface{}{SYMBOL_OPT_MARK, OPT_RELATION_EQ, 1.0, 1.0}
+	eval_result = EvalExpr(env, expr) 
+	if (eval_result != true) {
+		t.Error("")
+	}
 
-	env := CreateNewEnvironment()
-	expr := []interface{}{SYMBOL_OPT_MARK, OPT_RELATION_EQ, 1.0, 2.0}
-	eval_result := EvalExpr(env, expr) 
+	expr = []interface{}{SYMBOL_OPT_MARK, OPT_RELATION_EQ, 1.0, 2.0}
+	eval_result = EvalExpr(env, expr) 
+	if (eval_result != false) {
+		t.Error("")
+	}
+
+	expr = []interface{}{SYMBOL_OPT_MARK, OPT_RELATION_EQ, "wfchiang", "wfchiang"}
+	eval_result = EvalExpr(env, expr)
+	if (eval_result != true) {
+		t.Error("")
+	}
+
+	expr = []interface{}{SYMBOL_OPT_MARK, OPT_RELATION_EQ, "wfchiang", "Jenny"}
+	eval_result = EvalExpr(env, expr)
 	if (eval_result != false) {
 		t.Error("")
 	}

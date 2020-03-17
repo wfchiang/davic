@@ -24,6 +24,21 @@
                     "opt": ["-opt-", "-rel-eq-", "A", ["-opt-", "-obj-read-", ["-opt-", "-store-read-", "data"], ["type"]]], 
                     "note": "Check if the \"type\" field of the object is \"A\""
                 }; 
+                $scope.examples[2] = {
+                    "data": {"id":0, "type":"A"}, 
+                    "opt": ["-opt-", "-fcall-", ["-opt-", "-lambda-", ["-opt-", "-rel-eq-", "A", ["-opt-", "-obj-read-", ["-opt-", "-stack-read-"], ["type"]]]], ["-opt-", "-store-read-", "data"]], 
+                    "note": "Check if the \"type\" field of the object is \"A\" by calling a lambda"
+                }; 
+                $scope.examples[3] = {
+                    "data": [
+                        {"id":0, "type":"A"}, 
+                        {"id":1, "type":"B"}, 
+                        {"id":2, "type":"A"}, 
+                        {"id":3, "type":"B"}
+                    ], 
+                    "opt": ["-opt-", "-a-filter-", ["-opt-", "-store-read-", "data"], ["-opt-", "-lambda-", true]], 
+                    "note": "A filter but filters nothing"
+                }; 
 
                 $scope.goDavic = function(thisDataState, thisDavicOpt) {
                     let obj_data = JSON.parse(thisDataState); 
