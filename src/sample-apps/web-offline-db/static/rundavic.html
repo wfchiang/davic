@@ -39,6 +39,25 @@
                     "opt": ["-opt-", "-a-filter-", ["-opt-", "-store-read-", "data"], ["-opt-", "-lambda-", true]], 
                     "note": "A filter but filters nothing"
                 }; 
+                $scope.examples[4] = {
+                    "data": [
+                        {"id":0, "type":"A"}, 
+                        {"id":1, "type":"B"}, 
+                        {"id":2, "type":"A"}, 
+                        {"id":3, "type":"B"}
+                    ], 
+                    "opt": [
+                        "-opt-", 
+                        "-a-filter-", 
+                        ["-opt-", "-store-read-", "data"], 
+                        [
+                            "-opt-", 
+                            "-lambda-", 
+                            ["-opt-", "-rel-eq-", "A", ["-opt-", "-obj-read-", ["-opt-", "-stack-read-"], ["type"]]]
+                        ]
+                    ], 
+                    "note": "Filter object of which type is not \"A\""
+                }; 
 
                 $scope.goDavic = function(thisDataState, thisDavicOpt) {
                     let obj_data = JSON.parse(thisDataState); 
@@ -72,7 +91,7 @@
         </script>
     </head>
     <body>
-        <div ng-app="ngApp", ng-controller="ngCtrl">
+        <div ng-app="ngApp" ng-controller="ngCtrl">
             <h1>Let's Play Davic with Data Tables!</h1>
             <hr/>
             <p>Davic endpoint: {{davicEndpoint}}</p>
