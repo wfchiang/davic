@@ -1,0 +1,93 @@
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+        <script>
+            var ngApp = angular.module('ngApp', []);
+            ngApp.filter('prettyJson', function(){
+                function prettyPrintJson(data) {
+                    return JSON.stringify(data, null, '    ');
+                }; 
+                return prettyPrintJson; 
+            }); 
+            ngApp.controller('ngCtrl', function($http, $scope, $location){
+                $scope.optDataEndpoint = $location.protocol() + "://" + $location.host() + ":" + $location.port() + "/opt-data";      
+
+                $scope.keyMakerNewPhrase = null; 
+                $scope.keyMakerKey = []; 
+
+                $scope.optList = null; 
+
+                $scope.newOpt = [
+                    <<.SymbolOptMark>>
+                ]; 
+
+                $scope.loadOptList = function () {
+                    $http({
+                        method: 'GET', 
+                        url: $scope.optDataEndpoint,
+                        headers: {}
+                    }).then ( 
+                        function success (http_resp) {
+                            console.info("> [opt-maker] opt-data call success"); 
+                            if (typeof http_resp.data === 'object') {
+                                $scope.optList = http_resp.data
+                            }
+                            else {
+                                $scope.optList = JSON.parse(http_resp.data); 
+                            }
+                        }, 
+                        function error (http_resp) {
+                            console.info("> [opt-maker] opt-data call failed");
+                        }
+                    );
+                };
+
+                $scope.addFieldNameToKey = function () {
+                    if ($scope.keyMakerNewPhrase != null) {
+                        $scope.keyMakerKey.push(String($scope.keyMakerNewPhrase)); 
+                    }
+                    $scope.keyMakerNewPhrase = null; 
+                }; 
+                $scope.addArrayIndexToKey = function () {
+                    if ($scope.keyMakerNewPhrase != null) {
+                        $scope.keyMakerKey.push(parseInt($scope.keyMakerNewPhrase));
+                    }
+                    $scope.keyMakerNewPhrase = null; 
+                }; 
+            }); 
+        </script>
+    </head>
+    <body>
+        <div ng-init="loadOptList()" ng-app="ngApp" ng-controller="ngCtrl">
+            <h1>Davic Operation Maker</h1>
+            <hr/>
+
+            <h2>Object Key Maker</h2>
+            <p>
+                Append field name or array index 
+                <input ng-model="keyMakerNewPhrase"></input>
+                <button ng-click="addFieldNameToKey()">Add As Field Name</button>
+                <button ng-click="addArrayIndexToKey()">Add As Array Index</button>
+            </p>
+            <h4>Davic Object Key</h4>
+            <pre>{{keyMakerKey}}</pre>
+            <hr/>
+
+            <h2>Operation Maker</h2>
+            <table>
+                <tr>
+                    <td>Operator</td>
+                    <td>Operation</td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </table>
+
+            <h2>FYI: Operation List</h2>
+            <pre>{{optList | prettyJson}}</pre>
+            <hr/>
+        </div>
+    </body>
+</html>
