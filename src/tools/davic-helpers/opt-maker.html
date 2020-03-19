@@ -1,5 +1,6 @@
 <html>
     <head>
+        <link rel="stylesheet" type="text/css" href="static/style.css"/>
         <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
         <script>
             var ngApp = angular.module('ngApp', []);
@@ -76,12 +77,25 @@
             <h2>Operation Maker</h2>
             <table>
                 <tr>
-                    <td>Operator</td>
-                    <td>Operation</td>
+                    <th>Operator (Symbol)</th>
+                    <th>Symbol</th>
+                    <th>Operands</th>
                 </tr>
-                <tr>
-                    <td></td>
-                    <td></td>
+                <tr ng-repeat="(opt_key, opt) in optList.Operations">
+                    <td>{{opt.Name}}</td>
+                    <td>{{opt.Symbol}}</td>
+                    <td>
+                        <table>
+                            <tr>
+                                <td ng-repeat="(opd_key, opd) in opt.OpdNames">{{opd}}</td>
+                            </tr>
+                            <tr>
+                                <td ng-repeat="(opd_key, opd) in opt.OpdNames">
+                                    <input></input>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
                 </tr>
             </table>
 

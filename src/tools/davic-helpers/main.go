@@ -93,9 +93,13 @@ func optMakerHandler (http_resp http.ResponseWriter, http_reqt *http.Request) {
 // Main
 // ====
 func main () {
+	log.Println("Init File Server...")
+	file_server := http.FileServer(http.Dir("./static/"))
+
 	log.Println("Starting Davic-helpers...")
 	mux_router := mux.NewRouter()
 
+	mux_router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", file_server))
 	mux_router.HandleFunc("/opt-data", optDataHandler).Methods("GET")
 	mux_router.HandleFunc("/opt-maker", optMakerHandler).Methods("GET")
 	mux_router.HandleFunc("/", homepageHandler)
