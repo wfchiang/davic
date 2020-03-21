@@ -11,6 +11,8 @@
                 return prettyPrintJson; 
             }); 
             ngApp.controller('ngCtrl', function($http, $scope, $location){
+                $scope.selectedOptId = 0;  
+                $scope.specifiedOpds = []; 
                 $scope.optDataEndpoint = $location.protocol() + "://" + $location.host() + ":" + $location.port() + "/opt-data";      
 
                 $scope.keyMakerNewPhrase = null; 
@@ -32,6 +34,12 @@
                             console.info("> [opt-maker] opt-data call success"); 
                             if (typeof http_resp.data === 'object') {
                                 $scope.optList = http_resp.data
+                                for (var i = 0 ; i < $scope.optList.Operations.length ; i++) {
+                                    $scope.specifiedOpds.push([]); 
+                                    for (var j = 0 ; j < $scope.optList.Operations[i].OpdNames.length ; j++) {
+                                        $scope.specifiedOpds[i].push(null); 
+                                    }
+                                } 
                             }
                             else {
                                 $scope.optList = JSON.parse(http_resp.data); 
@@ -62,7 +70,7 @@
         <div ng-init="loadOptList()" ng-app="ngApp" ng-controller="ngCtrl">
             <h1>Davic Operation Maker</h1>
             <hr/>
-
+{{specifiedOpds}}.Symbol
             <h2>Object Key Maker</h2>
             <p>
                 Append field name or array index 
@@ -75,29 +83,35 @@
             <hr/>
 
             <h2>Operation Maker</h2>
+            {{specifiedOpds}}
             <table>
                 <tr>
                     <th>Operator (Symbol)</th>
                     <th>Symbol</th>
                     <th>Operands</th>
                 </tr>
-                <tr ng-repeat="(opt_key, opt) in optList.Operations">
-                    <td>{{opt.Name}}</td>
-                    <td>{{opt.Symbol}}</td>
+                <tr>
+                    <td>
+                        <select id="targetedOpt" ng-model="selectedOptId" ng-changes="resetSpecifiedOpds()">
+                            <option ng-repeat="(opt_key, opt) in optList.Operations" ng-value="opt_key">{{opt.Name}}</option>
+                        </select>
+                    </td>
+                    <td>{{optList.Operations[selectedOptId].Symbol}}</td>
                     <td>
                         <table>
                             <tr>
-                                <td ng-repeat="(opd_key, opd) in opt.OpdNames">{{opd}}</td>
+                                <th ng-repeat="(opd_key, opd) in optList.Operations[selectedOptId].OpdNames">{{opd}}</th>
                             </tr>
                             <tr>
-                                <td ng-repeat="(opd_key, opd) in opt.OpdNames">
-                                    <input></input>
+                                <td ng-repeat="(opd_key, opd) in optList.Operations[selectedOptId].OpdNames">
+                                    <input ng-model="specifiedOpds[selectedOptId][opd_key]"></input>
                                 </td>
                             </tr>
                         </table>
                     </td>
                 </tr>
             </table>
+            <hr/>
 
             <h2>FYI: Operation List</h2>
             <pre>{{optList | prettyJson}}</pre>
