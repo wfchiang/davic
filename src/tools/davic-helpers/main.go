@@ -8,7 +8,7 @@ import (
 	"encoding/json"
 	"html/template"
 	"github.com/gorilla/mux"
-	// "io/ioutil"
+	"io/ioutil"
 	"wfchiang/davic"
 )
 
@@ -113,6 +113,64 @@ func optMakerHandler (http_resp http.ResponseWriter, http_reqt *http.Request) {
 	log.Println("Opt-maker responded")
 }
 
+func runDavicHandler (http_resp http.ResponseWriter, http_reqt *http.Request) {
+	defer recoverFromPanic(http_resp, "run-davic")
+
+	log.Println("Run-davic is Hit!")
+
+	template_fname := "run-davic.html"
+	tmpl, err := template.New(template_fname).Delims("<<", ">>").ParseFiles(template_fname)
+	if (err != nil) {
+		panic(fmt.Sprintf("Template load failed: %v", err))
+	}
+
+	tmpl.Execute(http_resp, nil)
+
+	log.Println("Run-davic responded")
+}
+
+func davicHandler (http_resp http.ResponseWriter, http_reqt *http.Request) {
+	defer recoverFromPanic(http_resp, "davic")
+
+	log.Println("Davic is Hit!")
+
+	// Read the request body 
+	bytes_reqt_body, err := ioutil.ReadAll(http_reqt.Body)
+	if err != nil {
+		panic("Failed to read the request body")
+	}
+
+	reqt_body := string(bytes_reqt_body)
+	log.Println("Davic/Go is Hit! Body: " + reqt_body)
+
+	// Convert the string type request body to object
+	reqt_obj := davic.CreateObjFromBytes(bytes_reqt_body)
+	
+	_, ok := reqt_obj["data"]
+	if (!ok) {
+		panic("Data field is missed in the request object")
+	}
+	opt_obj, ok := reqt_obj["opt"]
+	if (!ok) {
+		panic("Opt field is missed in the request object")
+	}
+
+	// Setup the Davic environment 
+	env := davic.CreateNewEnvironment()
+	env.Store = davic.CastInterfaceToObj(reqt_obj)
+
+	// Execute the operation 
+	rel_obj := davic.EvalExpr(env, opt_obj)
+
+	// Marshal the response 
+	resp_body, err := json.Marshal(rel_obj) 
+	if err != nil {
+		panic(fmt.Sprintf("Response marshalling failed: %v", err))
+	} 
+	
+	fmt.Fprintf(http_resp, string(resp_body))
+}
+
 // ====
 // Main
 // ====
@@ -126,6 +184,8 @@ func main () {
 	mux_router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", file_server))
 	mux_router.HandleFunc("/opt-data", optDataHandler).Methods("GET")
 	mux_router.HandleFunc("/opt-maker", optMakerHandler).Methods("GET")
+	mux_router.HandleFunc("/run-davic", runDavicHandler).Methods("GET")
+	mux_router.HandleFunc("/davic", davicHandler).Methods("POST")
 	mux_router.HandleFunc("/", homepageHandler)
 
 	http.Handle("/", mux_router)
