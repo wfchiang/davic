@@ -75,7 +75,7 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 
 	} else if (strings.Compare(OPT_ARITHMETIC_ADD, opt) == 0) {
 		if (len(operation) < 3) {
-			panic(fmt.Sprintf("Invalid operation: %v", operation))
+			panic(fmt.Sprintf("Invalid arithmetic add operation: %v", operation))
 		}
 		
 		add_result := CastInterfaceToNumber(EvalExpr(env, operation[2]))
@@ -84,6 +84,39 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 		}
 		
 		return add_result
+
+	} else if (strings.Compare(OPT_ARITHMETIC_SUB, opt) == 0) {
+		if (len(operation) != 4) {
+			panic(fmt.Sprintf("Invalid arithmetic sub operation: %v", operation))
+		}
+		
+		lhs := CastInterfaceToNumber(EvalExpr(env, operation[2]))
+		rhs := CastInterfaceToNumber(EvalExpr(env, operation[3]))
+		sub_result := lhs - rhs
+		
+		return sub_result
+
+	} else if (strings.Compare(OPT_ARITHMETIC_MUL, opt) == 0) {
+		if (len(operation) != 4) {
+			panic(fmt.Sprintf("Invalid arithmetic mul operation: %v", operation))
+		}
+		
+		lhs := CastInterfaceToNumber(EvalExpr(env, operation[2]))
+		rhs := CastInterfaceToNumber(EvalExpr(env, operation[3]))
+		sub_result := lhs * rhs
+		
+		return sub_result
+
+	} else if (strings.Compare(OPT_ARITHMETIC_DIV, opt) == 0) {
+		if (len(operation) != 4) {
+			panic(fmt.Sprintf("Invalid arithmetic div operation: %v", operation))
+		}
+		
+		lhs := CastInterfaceToNumber(EvalExpr(env, operation[2]))
+		rhs := CastInterfaceToNumber(EvalExpr(env, operation[3]))
+		sub_result := lhs / rhs
+		
+		return sub_result
 
 	} else if (strings.Compare(OPT_ARRAY_GET, opt) == 0) {
 		if (len(operation) != 4) {

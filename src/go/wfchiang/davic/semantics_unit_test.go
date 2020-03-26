@@ -57,7 +57,7 @@ func TestEvalExprOptRelationEq0 (t *testing.T) {
 	}
 }
 
-func TestEvalExpr4 (t *testing.T) {
+func TestEvalExprOptArithmeticAdd (t *testing.T) {
 	defer simpleRecover(t)
 
 	env := CreateNewEnvironment()
@@ -66,9 +66,18 @@ func TestEvalExpr4 (t *testing.T) {
 	if (eval_result != 6.0) {
 		t.Error("")
 	}
+
+	expr1 := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_ADD, 1.0, 2.0, 3.0}
+	expr2 := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_ADD, 2.0, 3.0, 4.0}
+	expr3 := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_ADD, 3.0, 4.0, 5.0}
+	expr = []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_ADD, expr1, expr2, expr3}
+	eval_result = EvalExpr(env, expr) 
+	if (eval_result != 27.0) {
+		t.Error("")
+	}
 }
 
-func TestEvalExpr5 (t *testing.T) {
+func TestEvalExprOptArithmeticAddPanic0 (t *testing.T) {
 	defer simpleExpectPanic(t)
 
 	env := CreateNewEnvironment()
@@ -76,16 +85,62 @@ func TestEvalExpr5 (t *testing.T) {
 	EvalExpr(env, expr) 
 }
 
-func TestEvalExpr6 (t *testing.T) {
+func TestEvalExprOptArithmeticSub (t *testing.T) {
 	defer simpleRecover(t)
 
 	env := CreateNewEnvironment()
-	expr1 := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_ADD, 1.0, 2.0, 3.0}
-	expr2 := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_ADD, 2.0, 3.0, 4.0}
-	expr3 := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_ADD, 3.0, 4.0, 5.0}
-	expr := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_ADD, expr1, expr2, expr3}
+	expr := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_SUB, 1.0, 2.0}
 	eval_result := EvalExpr(env, expr) 
-	if (eval_result != 27.0) {
+	if (eval_result != -1.0) {
+		t.Error("")
+	}
+
+	expr1 := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_ADD, 1.0, 2.0, 3.0}
+	expr2 := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_SUB, expr1, 6.0}
+	expr3 := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_SUB, 2.0, expr1}
+	expr = []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_SUB, expr2, expr3}
+	eval_result = EvalExpr(env, expr) 
+	if (eval_result != 4.0) {
+		t.Error("")
+	}
+}
+
+func TestEvalExprOptArithmeticMul (t *testing.T) {
+	defer simpleRecover(t)
+
+	env := CreateNewEnvironment()
+	expr := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_MUL, -2.0, 2.0}
+	eval_result := EvalExpr(env, expr) 
+	if (eval_result != -4.0) {
+		t.Error("")
+	}
+
+	expr1 := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_ADD, 1.0, 2.0, 3.0}
+	expr2 := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_MUL, expr1, 6.0}
+	expr3 := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_SUB, 2.0, expr1}
+	expr = []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_MUL, expr2, expr3}
+	eval_result = EvalExpr(env, expr) 
+	if (eval_result != -144.0) {
+		t.Error("")
+	}
+}
+
+func TestEvalExprOptArithmeticDiv (t *testing.T) {
+	defer simpleRecover(t)
+
+	env := CreateNewEnvironment()
+	expr := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_DIV, -2.0, 2.0}
+	eval_result := EvalExpr(env, expr) 
+	if (eval_result != -1.0) {
+		t.Error("")
+	}
+
+	expr1 := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_ADD, 1.0, 2.0, 3.0}
+	expr2 := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_DIV, expr1, 6.0}
+	expr3 := []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_SUB, 2.0, expr1}
+	expr = []interface{}{SYMBOL_OPT_MARK, OPT_ARITHMETIC_DIV, expr2, expr3}
+	eval_result = EvalExpr(env, expr) 
+	if (eval_result != -0.25) {
 		t.Error("")
 	}
 }

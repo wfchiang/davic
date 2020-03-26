@@ -37,11 +37,35 @@ var OptListData = OptList {
 		OptData {
 			Name: "Lambda", 
 			Symbol: davic.OPT_LAMBDA, 
-			OpdNames: []string {"Function Expression"}},
+			OpdNames: []string {"Function (an expression)"}},
 		OptData {
 			Name: "Stack Read", 
 			Symbol: davic.OPT_STACK_READ, 
-			OpdNames: []string {}} }}
+			OpdNames: []string {}}, 
+		OptData {
+			Name: "Store Read", 
+			Symbol: davic.OPT_STORE_READ, 
+			OpdNames: []string {"Key (a string)"}}, 
+		OptData {
+			Name: "Store Write", 
+			Symbol: davic.OPT_STORE_WRITE, 
+			OpdNames: []string {"Key (a string)", "Value (an expression)"}},
+		OptData {
+			Name: "Function Call", 
+			Symbol: davic.OPT_FUNC_CALL, 
+			OpdNames: []string {"Lambda", "Value (an expression)"}},  
+		OptData {
+			Name: "Relation Equal", 
+			Symbol: davic.OPT_RELATION_EQ, 
+			OpdNames: []string {"LHS Value (an expression)", "RHS Value (an expression)"}}, 
+		OptData {
+			Name: "Arithmetic Add", 
+			Symbol: davic.OPT_ARITHMETIC_ADD, 
+			OpdNames: []string {"LHS Value (an expression)", "RHS Value (an expression)"}}, 
+		OptData {
+			Name: "Object Read", 
+			Symbol: davic.OPT_OBJ_READ,
+			OpdNames: []string {"Object (an expression)", "Key (a string-array)"}} }}
 
 // ==== 
 // Recovery function 

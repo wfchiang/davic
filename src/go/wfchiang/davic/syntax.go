@@ -33,6 +33,9 @@ const (
 	OPT_RELATION_EQ = "-rel-eq-"
 
 	OPT_ARITHMETIC_ADD = "-arith-add-"
+	OPT_ARITHMETIC_SUB = "-arith-sub-"
+	OPT_ARITHMETIC_MUL = "-arith-mul-"
+	OPT_ARITHMETIC_DIV = "-arith-div-"
 
 	OPT_ARRAY_MAP    = "-a-map-"
 	OPT_ARRAY_FILTER = "-a-filter-"

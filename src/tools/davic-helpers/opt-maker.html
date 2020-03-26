@@ -70,7 +70,7 @@
         <div ng-init="loadOptList()" ng-app="ngApp" ng-controller="ngCtrl">
             <h1>Davic Operation Maker</h1>
             <hr/>
-{{specifiedOpds}}.Symbol
+
             <h2>Object Key Maker</h2>
             <p>
                 Append field name or array index 
@@ -83,7 +83,6 @@
             <hr/>
 
             <h2>Operation Maker</h2>
-            {{specifiedOpds}}
             <table>
                 <tr>
                     <th>Operator (Symbol)</th>
@@ -104,7 +103,7 @@
                             </tr>
                             <tr>
                                 <td ng-repeat="(opd_key, opd) in optList.Operations[selectedOptId].OpdNames">
-                                    <input ng-model="specifiedOpds[selectedOptId][opd_key]"></input>
+                                    <textarea ng-model="specifiedOpds[selectedOptId][opd_key]"></textarea>
                                 </td>
                             </tr>
                         </table>
