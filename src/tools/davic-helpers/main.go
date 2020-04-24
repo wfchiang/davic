@@ -39,6 +39,10 @@ var OptListData = OptList {
 			Symbol: davic.OPT_LAMBDA, 
 			OpdNames: []string {"Function (an expression)"}},
 		OptData {
+			Name: "Function Call", 
+			Symbol: davic.OPT_FUNC_CALL, 
+			OpdNames: []string {"Lambda", "Value (an expression)"}},  
+		OptData {
 			Name: "Stack Read", 
 			Symbol: davic.OPT_STACK_READ, 
 			OpdNames: []string {}}, 
@@ -51,10 +55,6 @@ var OptListData = OptList {
 			Symbol: davic.OPT_STORE_WRITE, 
 			OpdNames: []string {"Key (a string)", "Value (an expression)"}},
 		OptData {
-			Name: "Function Call", 
-			Symbol: davic.OPT_FUNC_CALL, 
-			OpdNames: []string {"Lambda", "Value (an expression)"}},  
-		OptData {
 			Name: "Relation Equal", 
 			Symbol: davic.OPT_RELATION_EQ, 
 			OpdNames: []string {"LHS Value (an expression)", "RHS Value (an expression)"}}, 
@@ -62,6 +62,22 @@ var OptListData = OptList {
 			Name: "Arithmetic Add", 
 			Symbol: davic.OPT_ARITHMETIC_ADD, 
 			OpdNames: []string {"LHS Value (an expression)", "RHS Value (an expression)"}}, 
+		OptData {
+			Name: "Arithmetic Subtract", 
+			Symbol: davic.OPT_ARITHMETIC_SUB, 
+			OpdNames: []string {"LHS Value (an expression)", "RHS Value (an expression)"}}, 
+		OptData {
+			Name: "Arithmetic Multiply", 
+			Symbol: davic.OPT_ARITHMETIC_MUL, 
+			OpdNames: []string {"LHS Value (an expression)", "RHS Value (an expression)"}}, 
+		OptData {
+			Name: "Arithmetic Division", 
+			Symbol: davic.OPT_ARITHMETIC_DIV, 
+			OpdNames: []string {"LHS Value (an expression)", "RHS Value (an expression)"}}, 
+		OptData {
+			Name: "Array Get/Read", 
+			Symbol: davic.OPT_ARRAY_GET, 
+			OpdNames: []string {"Array (an expression)", "Index (a number)"}}, 
 		OptData {
 			Name: "Object Read", 
 			Symbol: davic.OPT_OBJ_READ,

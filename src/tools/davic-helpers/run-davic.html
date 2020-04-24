@@ -14,23 +14,24 @@
                 $scope.davicResult = ""; 
                 $scope.davicEndpoint = $location.protocol() + "://" + $location.host() + ":" + $location.port() + "/davic";      
 
-                $scope.examples = []; 
-                $scope.examples[0] = {
+                $scope.examples = [];
+                 
+                $scope.examples[1] = {
                     "data": {"id":1}, 
                     "opt": ["-opt-", "-obj-read-", ["-opt-", "-store-read-", "data"], ["id"]], 
                     "note": "Get the value of field \"id\""
                 }; 
-                $scope.examples[1] = {
+                $scope.examples[2] = {
                     "data": {"id":0, "type":"A"},
                     "opt": ["-opt-", "-rel-eq-", "A", ["-opt-", "-obj-read-", ["-opt-", "-store-read-", "data"], ["type"]]], 
                     "note": "Check if the \"type\" field of the object is \"A\""
                 }; 
-                $scope.examples[2] = {
+                $scope.examples[3] = {
                     "data": {"id":0, "type":"A"}, 
                     "opt": ["-opt-", "-fcall-", ["-opt-", "-lambda-", ["-opt-", "-rel-eq-", "A", ["-opt-", "-obj-read-", ["-opt-", "-stack-read-"], ["type"]]]], ["-opt-", "-store-read-", "data"]], 
                     "note": "Check if the \"type\" field of the object is \"A\" by calling a lambda"
                 }; 
-                $scope.examples[3] = {
+                $scope.examples[4] = {
                     "data": [
                         {"id":0, "type":"A"}, 
                         {"id":1, "type":"B"}, 
@@ -40,7 +41,7 @@
                     "opt": ["-opt-", "-a-filter-", ["-opt-", "-store-read-", "data"], ["-opt-", "-lambda-", true]], 
                     "note": "A filter but filters nothing"
                 }; 
-                $scope.examples[4] = {
+                $scope.examples[5] = {
                     "data": [
                         {"id":0, "type":"A"}, 
                         {"id":1, "type":"B"}, 
