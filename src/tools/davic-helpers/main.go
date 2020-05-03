@@ -15,10 +15,23 @@ import (
 const (
 	KEY_STORE_HTTP_REQUEST  = "http-reqt"
 	KEY_STORE_HTTP_RESPONSE = "http-resp" 
+	TYPE_BOOLEAN = "(boolean)"
+	TYPE_NUMBER = "(number)"
+	TYPE_STRING = "(string)"
+	TYPE_EXPR = "(expression)"
+	VALUE_INDEX_NUMBER = "Index " + TYPE_NUMBER
+	VALUE_KEY_STRING = "Key " + TYPE_STRING 
+	VALUE_KEY_EXPR = "Key " + TYPE_EXPR
+	VALUE_VALUE_EXPR = "Value " + TYPE_EXPR
+	VALUE_LHS_EXPR = "LHS Value " + TYPE_EXPR
+	VALUE_RHS_EXPR = "RHS Value " + TYPE_EXPR
+	VALUE_ARRAY_EXPR = "Array " + TYPE_EXPR
+	VALUE_OBJ_EXPR = "Object " + TYPE_EXPR
 )
 
 type OptData struct {
 	Name string 
+	Type string 
 	Symbol string 
 	OpdNames []string
 }
@@ -37,11 +50,11 @@ var OptListData = OptList {
 		OptData {
 			Name: "Lambda", 
 			Symbol: davic.OPT_LAMBDA, 
-			OpdNames: []string {"Function (an expression)"}},
+			OpdNames: []string {"Function " + TYPE_EXPR}},
 		OptData {
-			Name: "Function Call", 
+			Name: "Function Call",  
 			Symbol: davic.OPT_FUNC_CALL, 
-			OpdNames: []string {"Lambda", "Value (an expression)"}},  
+			OpdNames: []string {"Lambda " + TYPE_EXPR, VALUE_VALUE_EXPR}},  
 		OptData {
 			Name: "Stack Read", 
 			Symbol: davic.OPT_STACK_READ, 
@@ -49,39 +62,39 @@ var OptListData = OptList {
 		OptData {
 			Name: "Store Read", 
 			Symbol: davic.OPT_STORE_READ, 
-			OpdNames: []string {"Key (a string)"}}, 
+			OpdNames: []string {VALUE_KEY_STRING}}, 
 		OptData {
 			Name: "Store Write", 
 			Symbol: davic.OPT_STORE_WRITE, 
-			OpdNames: []string {"Key (a string)", "Value (an expression)"}},
+			OpdNames: []string {VALUE_KEY_STRING, VALUE_VALUE_EXPR}},
 		OptData {
 			Name: "Relation Equal", 
 			Symbol: davic.OPT_RELATION_EQ, 
-			OpdNames: []string {"LHS Value (an expression)", "RHS Value (an expression)"}}, 
+			OpdNames: []string {VALUE_LHS_EXPR, VALUE_RHS_EXPR}}, 
 		OptData {
 			Name: "Arithmetic Add", 
 			Symbol: davic.OPT_ARITHMETIC_ADD, 
-			OpdNames: []string {"LHS Value (an expression)", "RHS Value (an expression)"}}, 
+			OpdNames: []string {VALUE_LHS_EXPR, VALUE_RHS_EXPR}}, 
 		OptData {
 			Name: "Arithmetic Subtract", 
 			Symbol: davic.OPT_ARITHMETIC_SUB, 
-			OpdNames: []string {"LHS Value (an expression)", "RHS Value (an expression)"}}, 
+			OpdNames: []string {VALUE_LHS_EXPR, VALUE_RHS_EXPR}}, 
 		OptData {
 			Name: "Arithmetic Multiply", 
 			Symbol: davic.OPT_ARITHMETIC_MUL, 
-			OpdNames: []string {"LHS Value (an expression)", "RHS Value (an expression)"}}, 
+			OpdNames: []string {VALUE_LHS_EXPR, VALUE_RHS_EXPR}}, 
 		OptData {
 			Name: "Arithmetic Division", 
 			Symbol: davic.OPT_ARITHMETIC_DIV, 
-			OpdNames: []string {"LHS Value (an expression)", "RHS Value (an expression)"}}, 
+			OpdNames: []string {VALUE_LHS_EXPR, VALUE_RHS_EXPR}}, 
 		OptData {
 			Name: "Array Get/Read", 
 			Symbol: davic.OPT_ARRAY_GET, 
-			OpdNames: []string {"Array (an expression)", "Index (a number)"}}, 
+			OpdNames: []string {VALUE_ARRAY_EXPR, VALUE_INDEX_NUMBER}}, 
 		OptData {
 			Name: "Object Read", 
 			Symbol: davic.OPT_OBJ_READ,
-			OpdNames: []string {"Object (an expression)", "Key (a string-array)"}} }}
+			OpdNames: []string {VALUE_OBJ_EXPR, VALUE_KEY_EXPR}} }}
 
 // ==== 
 // Recovery function 
@@ -113,12 +126,12 @@ func optDataHandler (http_resp http.ResponseWriter, http_reqt *http.Request) {
 	fmt.Fprintf(http_resp, string(resp_body))
 }
 
-func optMakerHandler (http_resp http.ResponseWriter, http_reqt *http.Request) {
-	defer recoverFromPanic(http_resp, "opt-maker")
+func davicHelperHandler (http_resp http.ResponseWriter, http_reqt *http.Request) {
+	defer recoverFromPanic(http_resp, "davic-helper")
 
-	log.Println("Opt-maker is Hit!")
+	log.Println("Davic Helper is Hit!")
 	
-	template_fname := "opt-maker.html"
+	template_fname := "davic-helper.html"
 	tmpl, err := template.New(template_fname).Delims("<<", ">>").ParseFiles(template_fname)
 	if (err != nil) {
 		panic(fmt.Sprintf("Template load failed: %v", err))
@@ -126,7 +139,7 @@ func optMakerHandler (http_resp http.ResponseWriter, http_reqt *http.Request) {
 
 	tmpl.Execute(http_resp, nil)
 	
-	log.Println("Opt-maker responded")
+	log.Println("Davic Helper responded")
 }
 
 func runDavicHandler (http_resp http.ResponseWriter, http_reqt *http.Request) {
@@ -199,7 +212,7 @@ func main () {
 
 	mux_router.PathPrefix("/static/").Handler(http.StripPrefix("/static/", file_server))
 	mux_router.HandleFunc("/opt-data", optDataHandler).Methods("GET")
-	mux_router.HandleFunc("/opt-maker", optMakerHandler).Methods("GET")
+	mux_router.HandleFunc("/davic-helper", davicHelperHandler).Methods("GET")
 	mux_router.HandleFunc("/run-davic", runDavicHandler).Methods("GET")
 	mux_router.HandleFunc("/davic", davicHandler).Methods("POST")
 	mux_router.HandleFunc("/", homepageHandler)
