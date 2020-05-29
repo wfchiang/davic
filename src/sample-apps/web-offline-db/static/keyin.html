@@ -1,0 +1,90 @@
+<html>
+    <head>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+        <script>
+            var ngApp = angular.module('ngApp', []);
+            ngApp.filter('prettyJson', function(){
+                function prettyPrintJson(data) {
+                    return JSON.stringify(data, null, '    ');
+                }; 
+                return prettyPrintJson; 
+            }); 
+            ngApp.controller('ngCtrl', function($http, $scope, $location){
+                $scope.newId = 0; 
+                $scope.newName = "";
+                $scope.newGander = "";
+                $scope.newAge = "";
+                $scope.newEmail = ""; 
+                $scope.dataSet = {
+                    "fields": ["id", "name", "gander", "age", "email"], 
+                    "data": []
+                };
+
+                $scope.davicEndpoint = $location.protocol() + "://" + $location.host() + ":" + $location.port() + "/davic"; 
+
+                $scope.testDataSet0 = []; 
+
+                $scope.addData = function() {
+                    newData = {
+                        "id": $scope.newId, 
+                        "name": $scope.newName,
+                        "gander": $scope.newGander, 
+                        "age": $scope.newAge, 
+                        "email": $scope.newEmail
+                    };
+                    $scope.newId = $scope.newId + 1; 
+                    $scope.newName = "";
+                    $scope.newGander = "";
+                    $scope.newAge = "";
+                    $scope.newEmail = "";  
+                    $scope.dataSet["data"].push(newData);
+                }; 
+
+                $scope.printData = function() {
+                    return JSON.stringify($scope.dataSet, '    '); 
+                }; 
+            });
+        </script>
+    </head>
+    <body>
+        <div ng-app="ngApp", ng-controller="ngCtrl">
+            <h1>Create Your Data JSON Object Here!</h1>
+
+            <hr/>
+
+            <p>Davic endpoint: {{davicEndpoint}}</p>
+
+            <hr/>
+
+            <h2>Data Form</h2>
+            <p>
+                <table border="1">
+                    <tr>
+                        <td>name</td>
+                        <td><input type="text" ng-model="newName"/></td>
+                    </tr>
+                    <tr>
+                        <td>gander</td>
+                        <td><input type="text" ng-model="newGander"/></td>
+                    </tr>
+                    <tr>
+                        <td>age</td>
+                        <td><input type="text" ng-model="newAge"/></td>
+                    </tr>
+                    <tr>
+                        <td>email</td>
+                        <td><input type="text" ng-model="newEmail"/></td>
+                    </tr>
+                </table>
+                <button ng-click="addData()">Add</button>
+
+            </p>
+
+            <hr/>
+
+            <h2>Current Data JSON</h2>
+            <pre>{{ dataSet | prettyJson }}</pre>
+
+        </div>
+    </body>
+</html>
