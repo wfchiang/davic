@@ -1,0 +1,179 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="static/style.css"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+        <script>
+            var ngApp = angular.module('ngApp', []);
+            ngApp.filter('prettyJson', function(){
+                function prettyPrintJson(data) {
+                    return JSON.stringify(data, null, '    ');
+                }; 
+                return prettyPrintJson; 
+            }); 
+            ngApp.controller('ngCtrl', function($http, $scope, $location){
+                $scope.selectedOptId = 0;  
+                $scope.specifiedOpds = []; 
+                $scope.optDataEndpoint = $location.protocol() + "://" + $location.host() + ":" + $location.port() + "/opt-data"; 
+
+                $scope.keyMakerNewPhrase = null; 
+                $scope.keyMakerKey = []; 
+
+                $scope.optData = null; 
+                $scope.optMark = null; 
+                $scope.optList = null; 
+
+                $scope.type_boolean = "(boolean)"
+                $scope.type_string = "(string)"
+                $scope.type_number = "(number)"
+                $scope.type_expr = "(expression)"
+
+                $scope.newOpt = []; 
+
+                $scope.loadOptList = function () {
+                    $http({
+                        method: 'GET', 
+                        url: $scope.optDataEndpoint,
+                        headers: {}
+                    }).then ( 
+                        function success (http_resp) {
+                            console.info("> [opt-maker] opt-data call success"); 
+                            if (typeof http_resp.data === 'object') {
+                                $scope.optData = http_resp.data; 
+                                $scope.optMark = $scope.optData.SymbolOptMark;
+                                $scope.optList = $scope.optData.Operations; 
+                                // sort the optList 
+                                for (var i = 1 ; i < $scope.optList.length ; i++) {
+                                    for (var j = 0 ; j < $scope.optList.length - i ; j++) {
+                                        if ($scope.optList[j].Name.localeCompare($scope.optList[j+1].Name) > 0) {
+                                            var temp = $scope.optList[j]; 
+                                            $scope.optList[j] = $scope.optList[j+1]; 
+                                            $scope.optList[j+1] = temp; 
+                                        }
+                                    }
+                                }
+                                // init $scope.specifiedOpds
+                                for (var i = 0 ; i < $scope.optList.length ; i++) {
+                                    $scope.specifiedOpds.push([]); 
+                                    for (var j = 0 ; j < $scope.optList[i].OpdNames.length ; j++) {
+                                        $scope.specifiedOpds[i].push(null); 
+                                    }
+                                } 
+                            }
+                            else {
+                                $scope.optList = JSON.parse(http_resp.data); 
+                            }
+                        }, 
+                        function error (http_resp) {
+                            console.info("> [opt-maker] opt-data call failed");
+                        }
+                    );
+                };
+
+                $scope.addFieldNameToKey = function () {
+                    if ($scope.keyMakerNewPhrase != null) {
+                        $scope.keyMakerKey.push(String($scope.keyMakerNewPhrase)); 
+                    }
+                    $scope.keyMakerNewPhrase = null; 
+                }; 
+                $scope.addArrayIndexToKey = function () {
+                    if ($scope.keyMakerNewPhrase != null) {
+                        $scope.keyMakerKey.push(parseFloat($scope.keyMakerNewPhrase));
+                    }
+                    $scope.keyMakerNewPhrase = null; 
+                }; 
+
+                $scope.makeOpd = function (opd_name, opd_value) {
+                    if (opd_name.endsWith($scope.type_number)) {
+                        return parseFloat(opd_value); 
+                    }
+                    else if (opd_name.endsWith($scope.type_string)) {
+                        return opd_value; 
+                    }
+                    else if (opd_name.endsWith($scope.type_expr)) {
+                        return JSON.parse(opd_value); 
+                    }
+                    else {
+                        console.error("Invalid type for opd_name " + String(opd_name) + " opd_value " + String(opd_value)); 
+                    }
+                }; 
+
+                $scope.makeOpt = function () {
+                    $scope.newOpt[0] = $scope.optMark; 
+                    $scope.newOpt[1] = $scope.optList[$scope.selectedOptId].Symbol; 
+                    for (var i = 0 ; i < $scope.specifiedOpds[$scope.selectedOptId].length ; i++) {
+                        var opd_name = $scope.optList[$scope.selectedOptId].OpdNames[i]; 
+                        var opd_value = $scope.specifiedOpds[$scope.selectedOptId][i]; 
+                        $scope.newOpt[2 + i] = $scope.makeOpd(opd_name, opd_value); 
+                    }
+                }; 
+            }); 
+        </script>
+    </head>
+    <body>
+        <div ng-init="loadOptList()" ng-app="ngApp" ng-controller="ngCtrl">
+            <h1>Davic Helper</h1>
+            <hr/>
+
+            <div>
+                <h2>Object Key Maker</h2>
+                <p>
+                    Append field name or array index 
+                    <input ng-model="keyMakerNewPhrase"></input>
+                    <button ng-click="addFieldNameToKey()">Add As Field Name</button>
+                    <button ng-click="addArrayIndexToKey()">Add As Array Index</button>
+                </p>
+                <h4>Davic Object Key</h4>
+                <pre>{{keyMakerKey}}</pre>
+            </div>
+
+            <hr/>
+
+            <div>
+            <h2>Operation Maker</h2>
+                <table>
+                    <tr>
+                        <th>Operator (Symbol)</th>
+                        <th>Symbol</th>
+                        <th>Operands</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <select id="targetedOpt" ng-model="selectedOptId" ng-changes="resetSpecifiedOpds()">
+                                <option ng-repeat="(opt_key, opt) in optList" ng-value="opt_key">{{opt.Name}}</option>
+                            </select>
+                        </td>
+                        <td>{{optList[selectedOptId].Symbol}}</td>
+                        <td>
+                            <table>
+                                <tr>
+                                    <th ng-repeat="(opd_key, opd) in optList[selectedOptId].OpdNames">{{opd}}</th>
+                                </tr>
+                                <tr>
+                                    <td ng-repeat="(opd_key, opd) in optList[selectedOptId].OpdNames">
+                                        <textarea ng-model="specifiedOpds[selectedOptId][opd_key]"></textarea>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                        <td><button ng-click="makeOpt()">Make</button></td>
+                    </tr>
+                </table>
+            </div>
+            
+            <hr/>
+
+            <div>
+                <h2>Result Operation</h2>
+                <pre>{{newOpt}}</pre>
+            </div>
+            
+            <hr/>
+
+            <h2>FYI: Operation List</h2>
+            <pre>{{optList | prettyJson}}</pre>
+
+            <hr/>
+        </div>
+    </body>
+</html>
