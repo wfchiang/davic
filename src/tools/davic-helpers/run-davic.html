@@ -1,0 +1,137 @@
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="static/style.css"/>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+        <script>
+            var ngApp = angular.module('ngApp', []);
+            ngApp.filter('prettyJson', function(){
+                function prettyPrintJson(data) {
+                    return JSON.stringify(data, null, '    ');
+                }; 
+                return prettyPrintJson; 
+            }); 
+            ngApp.controller('ngCtrl', function($http, $scope, $location){
+                $scope.davicResult = ""; 
+                $scope.davicEndpoint = $location.protocol() + "://" + $location.host() + ":" + $location.port() + "/davic";      
+
+                $scope.examples = [];
+                 
+                $scope.examples[1] = {
+                    "data": {"id":1}, 
+                    "opt": ["-opt-", "-obj-read-", ["-opt-", "-store-read-", "data"], ["id"]], 
+                    "note": "Get the value of field \"id\""
+                }; 
+                $scope.examples[2] = {
+                    "data": {"id":0, "type":"A"},
+                    "opt": ["-opt-", "-rel-eq-", "A", ["-opt-", "-obj-read-", ["-opt-", "-store-read-", "data"], ["type"]]], 
+                    "note": "Check if the \"type\" field of the object is \"A\""
+                }; 
+                $scope.examples[3] = {
+                    "data": {"id":0, "type":"A"}, 
+                    "opt": ["-opt-", "-fcall-", ["-opt-", "-lambda-", ["-opt-", "-rel-eq-", "A", ["-opt-", "-obj-read-", ["-opt-", "-stack-read-"], ["type"]]]], ["-opt-", "-store-read-", "data"]], 
+                    "note": "Check if the \"type\" field of the object is \"A\" by calling a lambda"
+                }; 
+                $scope.examples[4] = {
+                    "data": [
+                        {"id":0, "type":"A"}, 
+                        {"id":1, "type":"B"}, 
+                        {"id":2, "type":"A"}, 
+                        {"id":3, "type":"B"}
+                    ], 
+                    "opt": ["-opt-", "-a-filter-", ["-opt-", "-store-read-", "data"], ["-opt-", "-lambda-", true]], 
+                    "note": "A filter but filters nothing"
+                }; 
+                $scope.examples[5] = {
+                    "data": [
+                        {"id":0, "type":"A"}, 
+                        {"id":1, "type":"B"}, 
+                        {"id":2, "type":"A"}, 
+                        {"id":3, "type":"B"}
+                    ], 
+                    "opt": [
+                        "-opt-", 
+                        "-a-filter-", 
+                        ["-opt-", "-store-read-", "data"], 
+                        [
+                            "-opt-", 
+                            "-lambda-", 
+                            ["-opt-", "-rel-eq-", "A", ["-opt-", "-obj-read-", ["-opt-", "-stack-read-"], ["type"]]]
+                        ]
+                    ], 
+                    "note": "Filter object of which type is not \"A\""
+                }; 
+
+                $scope.goDavic = function(thisDataState, thisDavicOpt) {
+                    let obj_data = JSON.parse(thisDataState); 
+                    let obj_opt = JSON.parse(thisDavicOpt); 
+
+                    $http({
+                        method: 'POST', 
+                        url: $scope.davicEndpoint, 
+                        data: {
+                            "data": obj_data, 
+                            "opt": obj_opt
+                        }, 
+                        headers: {}
+                    }).then ( 
+                        function success (http_resp) {
+                            console.info("> [rundavic] davic call success"); 
+                            $scope.davicResult = http_resp.data;
+                        }, 
+                        function error (http_resp) {
+                            console.info("> [rundavic] davic call failed");
+                        }
+                    );
+                }; 
+
+                $scope.applyExample = function(obj_data, obj_opt) {
+                    $scope.dataState = JSON.stringify(obj_data, null, '    ');
+                    $scope.davicOpt = JSON.stringify(obj_opt, null, '    '); 
+                    $scope.davicResult = ""; 
+                }; 
+            });
+        </script>
+    </head>
+    <body>
+        <div ng-app="ngApp" ng-controller="ngCtrl">
+            <h1>Let's Play Davic with Data Tables!</h1>
+            <hr/>
+            <p>Davic endpoint: {{davicEndpoint}}</p>
+            <hr/>
+
+            <table>
+                <tr>
+                    <td>Data State</td>
+                    <td>Davic Operation</td>
+                    <td></td>
+                    <td>Result</td>
+                </tr>
+                <tr>
+                    <td><textarea ng-model="dataState"></textarea></td>
+                    <td><textarea ng-model="davicOpt"></textarea></td>
+                    <td><button ng-click="goDavic(dataState, davicOpt)">Go!</button></td>
+                    <td><pre>{{davicResult}}</pre></td>
+                </tr>
+            </table>
+
+            <h2>Examples</h2>
+            <table>
+                <tr>
+                    <td>Example #</td>
+                    <td>Data State</td>
+                    <td>Davic Operation</td>
+                    <td></td>
+                    <td>Note</td>
+                </tr>
+                <tr ng-repeat="(key,exp) in examples">
+                    <td>{{key}}</td>
+                    <td><pre>{{exp["data"] | prettyJson}}</pre></td>
+                    <td><pre>{{exp["opt"] | prettyJson}}</pre></td>
+                    <td><button ng-click="applyExample(exp['data'],exp['opt'])">Apply</button></td>
+                    <td><pre>{{exp["note"]}}</pre></td>
+                </tr>
+            </table>
+            <p></p>
+        </div>
+    </body>
+</html>
