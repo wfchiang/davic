@@ -422,3 +422,21 @@ func TestExecution0 (t *testing.T) {
 		t.Error("")
 	}
 }
+
+func TestExecution1 (t *testing.T) {
+	defer simpleRecover(t)
+
+	my_store := map[string]interface{}{}
+	my_store["hero"] = "iron-man"
+	my_store["power"] = "rich"
+
+	env := CreateNewEnvironment()
+	env.Store = my_store
+
+	opt := []interface{}{SYMBOL_OPT_MARK, OPT_STORE_WRITE, "hero", "bat-man"}
+
+	env = Execute(env, []interface{}{opt})
+	if (simpleIsViolation(TYPE_STRING, "bat-man", env.Store["hero"])) {
+		t.Error("")
+	}
+}
