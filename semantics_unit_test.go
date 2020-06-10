@@ -3,6 +3,8 @@ package davic
 import (
 // 	"fmt"
 	"testing"
+	"net/http"
+	"net/http/httptest"
 )
 
 /********
@@ -382,6 +384,56 @@ func TestEvalExpr18 (t *testing.T) {
 }
 
 /********
+Named Tests of EvalExpr 
+********/
+func TestEvalExprHttpCall0 (t *testing.T) {
+	defer simpleRecover(t)
+
+	// Initialize the mock server 
+	mock_http_server := httptest.NewServer(http.HandlerFunc(mockTestingServerHandler))
+	if (mock_http_server == nil) {
+		panic("Error: httptest.NewServer failed")
+	}
+	mock_http_client := mock_http_server.Client() 
+	if (mock_http_client == nil) {
+		panic("Error: failed to get the Client of the mock Server")
+	}
+
+	// Init the http request, the http call operation, and the environment
+	http_reqt := map[string]interface{}{}
+	http_call_opt := []interface{}{SYMBOL_OPT_MARK, OPT_HTTP_CALL, http_reqt}
+	env := sampleEnvironment0()
+
+	// Bad endpoint 
+	http_reqt[KEY_HTTP_METHOD]  = SYMBOL_HTTP_METHOD_GET
+	http_reqt[KEY_HTTP_URL]     = mock_http_server.URL + "/BadEndpoint"
+	http_reqt[KEY_HTTP_HEADERS] = map[string]interface{}{}
+	http_reqt[KEY_HTTP_BODY]    = nil
+	http_resp := CastInterfaceToObj(EvalExpr(env, http_call_opt))
+	if (simpleIsViolation(TYPE_STRING, "404", http_resp[KEY_HTTP_STATUS])) {
+		t.Error("")
+	}
+
+	// TestMakeHttpCall/0
+	http_reqt[KEY_HTTP_URL] = mock_http_server.URL + "/TestMakeHttpCall/0"
+	http_resp = CastInterfaceToObj(EvalExpr(env, http_call_opt))
+	if (simpleIsViolation(TYPE_STRING, "200", http_resp[KEY_HTTP_STATUS])) {
+		t.Error("")
+	}
+
+	// TestMakeHttpCall/1 
+	http_reqt[KEY_HTTP_URL]  = mock_http_server.URL + "/TestMakeHttpCall/1"
+	http_resp = CastInterfaceToObj(EvalExpr(env, http_call_opt))
+	if (simpleIsViolation(TYPE_STRING, "200", http_resp[KEY_HTTP_STATUS])) {
+		t.Error("")
+	}
+	hv, ok := ReadHttpHeader(CastInterfaceToObj(http_resp[KEY_HTTP_HEADERS]), "header1")
+	if (!ok || simpleIsViolation(TYPE_STRING, "value1", hv)) {
+		t.Error("")
+	}
+}
+
+/********
 Tests of Execution 
 ********/ 
 func TestExecution0 (t *testing.T) {
@@ -419,6 +471,24 @@ func TestExecution0 (t *testing.T) {
 		t.Error("")
 	}
 	if (simpleIsViolation(TYPE_STRING, "Jenny", val3["wife"])) {
+		t.Error("")
+	}
+}
+
+func TestExecution1 (t *testing.T) {
+	defer simpleRecover(t)
+
+	my_store := map[string]interface{}{}
+	my_store["hero"] = "iron-man"
+	my_store["power"] = "rich"
+
+	env := CreateNewEnvironment()
+	env.Store = my_store
+
+	opt := []interface{}{SYMBOL_OPT_MARK, OPT_STORE_WRITE, "hero", "bat-man"}
+
+	env = Execute(env, []interface{}{opt})
+	if (simpleIsViolation(TYPE_STRING, "bat-man", env.Store["hero"])) {
 		t.Error("")
 	}
 }
