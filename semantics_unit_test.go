@@ -3,6 +3,8 @@ package davic
 import (
 // 	"fmt"
 	"testing"
+	"net/http"
+	"net/http/httptest"
 )
 
 /********
@@ -377,6 +379,56 @@ func TestEvalExpr18 (t *testing.T) {
 	opt_obj_read := []interface{}{SYMBOL_OPT_MARK, OPT_OBJ_READ, env0.Store, []interface{}{"keyO", "keykeyB"}}
 	val0 := EvalExpr(env0, opt_obj_read)
 	if (simpleIsViolation(TYPE_BOOL, true, val0)) {
+		t.Error("")
+	}
+}
+
+/********
+Named Tests of EvalExpr 
+********/
+func TestEvalExprHttpCall0 (t *testing.T) {
+	defer simpleRecover(t)
+
+	// Initialize the mock server 
+	mock_http_server := httptest.NewServer(http.HandlerFunc(mockTestingServerHandler))
+	if (mock_http_server == nil) {
+		panic("Error: httptest.NewServer failed")
+	}
+	mock_http_client := mock_http_server.Client() 
+	if (mock_http_client == nil) {
+		panic("Error: failed to get the Client of the mock Server")
+	}
+
+	// Init the http request, the http call operation, and the environment
+	http_reqt := map[string]interface{}{}
+	http_call_opt := []interface{}{SYMBOL_OPT_MARK, OPT_HTTP_CALL, http_reqt}
+	env := sampleEnvironment0()
+
+	// Bad endpoint 
+	http_reqt[KEY_HTTP_METHOD]  = SYMBOL_HTTP_METHOD_GET
+	http_reqt[KEY_HTTP_URL]     = mock_http_server.URL + "/BadEndpoint"
+	http_reqt[KEY_HTTP_HEADERS] = map[string]interface{}{}
+	http_reqt[KEY_HTTP_BODY]    = nil
+	http_resp := CastInterfaceToObj(EvalExpr(env, http_call_opt))
+	if (simpleIsViolation(TYPE_STRING, "404", http_resp[KEY_HTTP_STATUS])) {
+		t.Error("")
+	}
+
+	// TestMakeHttpCall/0
+	http_reqt[KEY_HTTP_URL] = mock_http_server.URL + "/TestMakeHttpCall/0"
+	http_resp = CastInterfaceToObj(EvalExpr(env, http_call_opt))
+	if (simpleIsViolation(TYPE_STRING, "200", http_resp[KEY_HTTP_STATUS])) {
+		t.Error("")
+	}
+
+	// TestMakeHttpCall/1 
+	http_reqt[KEY_HTTP_URL]  = mock_http_server.URL + "/TestMakeHttpCall/1"
+	http_resp = CastInterfaceToObj(EvalExpr(env, http_call_opt))
+	if (simpleIsViolation(TYPE_STRING, "200", http_resp[KEY_HTTP_STATUS])) {
+		t.Error("")
+	}
+	hv, ok := ReadHttpHeader(CastInterfaceToObj(http_resp[KEY_HTTP_HEADERS]), "header1")
+	if (!ok || simpleIsViolation(TYPE_STRING, "value1", hv)) {
 		t.Error("")
 	}
 }
