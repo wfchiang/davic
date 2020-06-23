@@ -2,6 +2,7 @@ package davic
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 )
 
@@ -237,6 +238,18 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 		}
 
 		return arr_result
+
+	} else if (strings.Compare(OPT_HTTP_CALL, opt) == 0) {
+		if (len(operation) != 3) {
+			panic(fmt.Sprintf("Invalid http-call operation: %v : %s", operation, "Exact 3 parameters are required"))
+		} 
+
+		http_client := &http.Client{}
+		http_reqt := CastInterfaceToObj(operation[2])
+		
+		http_resp := MakeHttpCall(http_client, http_reqt)
+
+		return http_resp
 
 	} else {
 		panic(fmt.Sprintf("Invalid/Unsupported evaluation of expression: %v", in_expr))

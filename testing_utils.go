@@ -1,8 +1,10 @@
 package davic 
 
 import (
+	"fmt"
 	"testing"
 	"net/http"
+	"runtime/debug"
 )
 
 /********
@@ -15,7 +17,7 @@ func simpleIsViolation (type_string string, expected interface{}, actual interfa
 	if (!IsType(type_string, actual)) {
 		return true
 	}
-	return (expected != actual); 
+	return (expected != actual)
 }
 
 func simpleExpectPanic (t *testing.T) {
@@ -27,7 +29,19 @@ func simpleExpectPanic (t *testing.T) {
 
 func simpleRecover (t *testing.T) {
 	if r := recover(); r != nil {
-		t.Error("There was a panic... ", r)
+		t.Error(fmt.Sprintf("Panic: %v.\nStack Trace: %v", r, string(debug.Stack())))
+	}
+}
+
+func simpleTestingAssert(t *testing.T, type_string string, expected interface{}, actual interface{}) {
+	if (!IsType(type_string, expected)) {
+		return
+	}
+	if (!IsType(type_string, actual)) {
+		panic(fmt.Sprintf("Invalid type of the actual value. Type %v is expected.", type_string))
+	}
+	if (expected != actual) {
+		panic(fmt.Sprintf("Testing Assertion Failed. Expected vs Actual is [%v] vs [%v]", expected, actual))
 	}
 }
 
@@ -66,7 +80,10 @@ func mockTestingServerHandler (http_resp_writer http.ResponseWriter, http_reques
 			http_resp_writer.WriteHeader(200)	
 		} else {
 			http_resp_writer.WriteHeader(400)
-		}		
+		}	
+	} else if (reqt_method == SYMBOL_HTTP_METHOD_POST && reqt_path == "/TestMakeHttpCall/post/0") {
+		http_resp_writer.WriteHeader(200)
+		fmt.Fprintf(http_resp_writer, string(sampleJsonBytes0()))
 	} else {
 		http_resp_writer.WriteHeader(404)
 	}
