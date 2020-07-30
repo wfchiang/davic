@@ -37,6 +37,8 @@ const (
 	OPT_ARITHMETIC_MUL = "-arith-mul-"
 	OPT_ARITHMETIC_DIV = "-arith-div-"
 
+	OPT_STRING_CONCAT = "-str-concat-"
+
 	OPT_ARRAY_MAP    = "-a-map-"
 	OPT_ARRAY_FILTER = "-a-filter-"
 	OPT_ARRAY_GET    = "-a-get-"

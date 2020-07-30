@@ -104,9 +104,9 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 		
 		lhs := CastInterfaceToNumber(EvalExpr(env, operation[2]))
 		rhs := CastInterfaceToNumber(EvalExpr(env, operation[3]))
-		sub_result := lhs * rhs
+		mul_result := lhs * rhs
 		
-		return sub_result
+		return mul_result
 
 	} else if (strings.Compare(OPT_ARITHMETIC_DIV, opt) == 0) {
 		if (len(operation) != 4) {
@@ -115,9 +115,19 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 		
 		lhs := CastInterfaceToNumber(EvalExpr(env, operation[2]))
 		rhs := CastInterfaceToNumber(EvalExpr(env, operation[3]))
-		sub_result := lhs / rhs
+		div_result := lhs / rhs
 		
-		return sub_result
+		return div_result
+
+	} else if (strings.Compare(OPT_STRING_CONCAT, opt) == 0) {
+		if (len(operation) != 4) {
+			panic(fmt.Sprintf("Invalid string-concat operation: %v", operation))
+		}
+
+		lhs := CastInterfaceToString(EvalExpr(env, operation[2]))
+		rhs := CastInterfaceToString(EvalExpr(env, operation[3]))
+
+		return lhs + rhs
 
 	} else if (strings.Compare(OPT_ARRAY_GET, opt) == 0) {
 		if (len(operation) != 4) {

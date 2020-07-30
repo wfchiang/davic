@@ -121,6 +121,15 @@ func TestEvalExprOptArithmeticDiv (t *testing.T) {
 	simpleTestingAssert(t, TYPE_NUMBER, -0.25, eval_result)
 }
 
+func TestEvalExprOptStringConcat (t *testing.T) {
+	defer simpleRecover(t)
+
+	env := CreateNewEnvironment()
+	expr := []interface{}{SYMBOL_OPT_MARK, OPT_STRING_CONCAT, "foo", "bar"}
+	eval_result := EvalExpr(env, expr)
+	simpleTestingAssert(t, TYPE_STRING, "foobar", eval_result)
+}
+
 func TestEvalExpr7 (t *testing.T) {
 	defer simpleRecover(t)
 
