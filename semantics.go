@@ -2,6 +2,7 @@ package davic
 
 import (
 	"fmt"
+	"net/http"
 	"strings"
 )
 
@@ -67,13 +68,15 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 			return (lhs == rhs)
 		} else if (IsType(TYPE_NUMBER, lhs) && IsType(TYPE_NUMBER, rhs)) {
 			return (lhs == rhs)
+		} else if (IsType(TYPE_STRING, lhs) && IsType(TYPE_STRING, rhs)) {
+			return (lhs == rhs)
 		} else {
-			panic(fmt.Sprintf("Invalid operation: %v", operation))
+			panic(fmt.Sprintf("Operation %v cannot compare the lhs (%v) and the rhs (%v): %v", OPT_RELATION_EQ, lhs, rhs, operation))
 		}
 
 	} else if (strings.Compare(OPT_ARITHMETIC_ADD, opt) == 0) {
 		if (len(operation) < 3) {
-			panic(fmt.Sprintf("Invalid operation: %v", operation))
+			panic(fmt.Sprintf("Invalid arithmetic add operation: %v", operation))
 		}
 		
 		add_result := CastInterfaceToNumber(EvalExpr(env, operation[2]))
@@ -83,75 +86,87 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 		
 		return add_result
 
+	} else if (strings.Compare(OPT_ARITHMETIC_SUB, opt) == 0) {
+		if (len(operation) != 4) {
+			panic(fmt.Sprintf("Invalid arithmetic sub operation: %v", operation))
+		}
+		
+		lhs := CastInterfaceToNumber(EvalExpr(env, operation[2]))
+		rhs := CastInterfaceToNumber(EvalExpr(env, operation[3]))
+		sub_result := lhs - rhs
+		
+		return sub_result
+
+	} else if (strings.Compare(OPT_ARITHMETIC_MUL, opt) == 0) {
+		if (len(operation) != 4) {
+			panic(fmt.Sprintf("Invalid arithmetic mul operation: %v", operation))
+		}
+		
+		lhs := CastInterfaceToNumber(EvalExpr(env, operation[2]))
+		rhs := CastInterfaceToNumber(EvalExpr(env, operation[3]))
+		mul_result := lhs * rhs
+		
+		return mul_result
+
+	} else if (strings.Compare(OPT_ARITHMETIC_DIV, opt) == 0) {
+		if (len(operation) != 4) {
+			panic(fmt.Sprintf("Invalid arithmetic div operation: %v", operation))
+		}
+		
+		lhs := CastInterfaceToNumber(EvalExpr(env, operation[2]))
+		rhs := CastInterfaceToNumber(EvalExpr(env, operation[3]))
+		div_result := lhs / rhs
+		
+		return div_result
+
+	} else if (strings.Compare(OPT_STRING_CONCAT, opt) == 0) {
+		if (len(operation) != 4) {
+			panic(fmt.Sprintf("Invalid string-concat operation: %v", operation))
+		}
+
+		lhs := CastInterfaceToString(EvalExpr(env, operation[2]))
+		rhs := CastInterfaceToString(EvalExpr(env, operation[3]))
+
+		return lhs + rhs
+
+	} else if (strings.Compare(OPT_ARRAY_GET, opt) == 0) {
+		if (len(operation) != 4) {
+			panic(fmt.Sprintf("Invalid array-get operation: %v : %s", operation, "mal-form"))
+		}
+
+		arr := CastInterfaceToArray(EvalExpr(env, operation[2]))
+		num_index := CastInterfaceToNumber(EvalExpr(env, operation[3]))
+		int_index := int(num_index)
+
+		if float64(int_index) != num_index {
+			panic(fmt.Sprintf("Invalid array-get index %v", operation[3]))
+		}
+		if int_index >= len(arr) {
+			panic(fmt.Sprintf("Array index out-of-bound for array-get: %v > %v", int_index, len(arr)))
+		}
+
+		return arr[int_index]
+
 	} else if (strings.Compare(OPT_OBJ_READ, opt) == 0) {
 		if (len(operation) != 4) {
-			panic(fmt.Sprintf("Invalid field-read operation: %v : %s", operation, "mal-form"))
+			panic(fmt.Sprintf("Invalid obj-read operation: %v : %s", operation, "mal-form"))
 		}
 
-		obj := EvalExpr(env, operation[2])
+		obj := CastInterfaceToObj(EvalExpr(env, operation[2]))
 		key := CastInterfaceToStringArray(EvalExpr(env, operation[3]))
 
-		return GetObjValue(obj, key)
+		return ReadObjValue(obj, key)
 
-	} else if (strings.Compare(OPT_FIELD_READ, opt) == 0) {
-		if (len(operation) != 4) {
-			panic(fmt.Sprintf("Invalid field-read operation: %v : %s", operation, "mal-form"))
-		}
-
-		container := EvalExpr(env, operation[2])
-		key := EvalExpr(env, operation[3])
-		
-		if (IsType(TYPE_OBJ, container) && IsType(TYPE_STRING, key)) { // If the container is an object ...
-			typed_container := CastInterfaceToObj(container)
-			typed_key := CastInterfaceToString(key)
-			return typed_container[typed_key]
-
-		} else if (IsType(TYPE_ARRAY, container) && IsType(TYPE_NUMBER, key)) { // If the container is an array ... 
-			typed_container := CastInterfaceToArray(container)
-
-			float64_key := CastInterfaceToNumber(key)
-			typed_key := int(float64_key)
-			if (float64_key != float64(typed_key)) {
-				panic(fmt.Sprintf("Invalid operation: %v : %s", operation, "cannot cast the array index to a number"))
-			}
-
-			return typed_container[typed_key]
-
-		} else {
-			panic(fmt.Sprintf("Invalid field-read operation: %v", operation))
-		}
-
-	} else if (strings.Compare(OPT_FIELD_UPDATE, opt) == 0) {
+	} else if (strings.Compare(OPT_OBJ_UPDATE, opt) == 0) {
 		if (len(operation) != 5) {
-			panic(fmt.Sprintf("Invalid field-update operation: %v : %s", operation, "mal-form"))
+			panic(fmt.Sprintf("Invalid obj-update operation: %v : %s", operation, "mal-form"))
 		}
 
-		new_container := CopyValue(EvalExpr(env, operation[2]))
-		key := EvalExpr(env, operation[3])
+		obj := CastInterfaceToObj(EvalExpr(env, operation[2]))
+		key := CastInterfaceToStringArray(EvalExpr(env, operation[3]))
 		new_val := EvalExpr(env, operation[4])
-
-		if (IsType(TYPE_OBJ, new_container) && IsType(TYPE_STRING, key)) { // If the container is an object ...
-			typed_container := CastInterfaceToObj(new_container)
-			typed_key := CastInterfaceToString(key)
-			typed_container[typed_key] = new_val
-			return typed_container
-
-		} else if (IsType(TYPE_ARRAY, new_container) && IsType(TYPE_NUMBER, key)) { // If the container is an array ... 
-			typed_container := CastInterfaceToArray(new_container)
-
-			float64_key := CastInterfaceToNumber(key)
-			typed_key := int(float64_key)
-			if (float64_key != float64(typed_key)) {
-				panic(fmt.Sprintf("Invalid operation: %v : %s", operation, "cannot cast the array index to a number"))
-			}
-
-			typed_container[typed_key] = new_val
-
-			return typed_container
-
-		} else {
-			panic(fmt.Sprintf("Invalid field-update operation: %v", operation))
-		}
+		new_obj := UpdateObjValue(obj, key, new_val)
+		return new_obj
 
 	} else if (strings.Compare(SYMBOL_REF_MARK, opt) == 0) {
 		ref_key := []string{}
@@ -233,6 +248,18 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 		}
 
 		return arr_result
+
+	} else if (strings.Compare(OPT_HTTP_CALL, opt) == 0) {
+		if (len(operation) != 3) {
+			panic(fmt.Sprintf("Invalid http-call operation: %v : %s", operation, "Exact 3 parameters are required"))
+		} 
+
+		http_client := &http.Client{}
+		http_reqt := CastInterfaceToObj(operation[2])
+		
+		http_resp := MakeHttpCall(http_client, http_reqt)
+
+		return http_resp
 
 	} else {
 		panic(fmt.Sprintf("Invalid/Unsupported evaluation of expression: %v", in_expr))

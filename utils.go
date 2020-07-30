@@ -102,6 +102,34 @@ func MarshalInterfaceToBytes (value interface{}) []byte {
 	return barr
 }
 
+/*
+Copy Value
+*/ 
+func CopyValue (value interface{}) interface{} {
+	if (IsType(TYPE_NULL, value)) {
+		return nil
+	} else if (IsType(TYPE_BOOL, value) || IsType(TYPE_NUMBER, value) || IsType(TYPE_STRING, value)) {
+		return value
+	} else if (IsType(TYPE_ARRAY, value)) {
+		origin_array, _ := value.([]interface{})
+		copy_array := []interface{}{}
+		for _, v := range origin_array {
+			copy_array = append(copy_array, CopyValue(v))
+		}
+		return copy_array
+	} else if (IsType(TYPE_OBJ, value)) {
+		origin_obj, _ := value.(map[string]interface{})
+		copy_obj := map[string]interface{}{}
+		for k, v := range origin_obj {
+			copy_obj[k] = CopyValue(v)
+		}
+		return copy_obj
+	} else {
+		error_message := fmt.Sprintf("Cannot copy value with unknown type. Value: %v", value)
+		panic(error_message)
+	}
+}
+
 /* 
 Object Utils 
 */ 
@@ -113,27 +141,81 @@ func GetObjKeys (obj map[string]interface{}) []string {
 	return keys
 }
 
-func GetObjValue (obj interface{}, key []string) interface{} {
+func ReadObjValue (obj map[string]interface{}, key []string) interface{} {
 	if (len(key) == 0) {
 		return obj
-	}
-
-	kv, ok := obj.(map[string]interface{})
-	if (!ok) {
-		panic(fmt.Sprintf("Cannot get obj value from a non-obj value: %v", obj))
 	}
 
 	var retv interface{} = nil
 	
 	for i, k := range key {
-		if (i == (len(key)-1)) {
-			retv = kv[k]
-			break
+		next_obj, ok := obj[k] 
+		if (!ok) {
+			panic(fmt.Sprintf("ReadObjValue failed because the key %v does not exist", key))
 		}
-		kv = kv[k].(map[string]interface{})
+		if (i == (len(key)-1)) {
+			retv = obj[k]
+			break
+		} else {
+			obj = CastInterfaceToObj(next_obj)
+		}
 	}
 
 	return retv
+}
+
+func UpdateObjValue (obj map[string]interface{}, key []string, val interface{}) map[string]interface{} {
+	if (len(key) == 0) {
+		return obj
+	}
+
+	new_val := CopyValue(val)
+	new_obj := CastInterfaceToObj(CopyValue(obj))
+	traversal := new_obj
+	
+	for i, k := range key {
+		next_obj, ok := traversal[k]
+		if (!ok) {
+			panic(fmt.Sprintf("UpdateObjValue failed because the key %v does not exist", key))
+		} 
+		if (i == (len(key)-1)) {
+			traversal[k] = new_val
+			break
+		} else {
+			traversal = CastInterfaceToObj(next_obj)
+		}
+	}
+
+	return new_obj
+}
+
+func WriteObjValue (obj map[string]interface{}, key []string, val interface{}) map[string]interface{} {
+	if (len(key) == 0) {
+		return obj
+	}
+
+	new_val := CopyValue(val)
+	new_obj := CastInterfaceToObj(CopyValue(obj))
+	traversal := new_obj
+	
+	for i, k := range key {
+		next_obj, ok := traversal[k] 
+		if (!ok) {
+			traversal[k] = map[string]interface{}{}
+			next_obj, ok = traversal[k] 
+			if (!ok) {
+				panic(fmt.Sprintf("WriteObjValue failed because the key %v cannot be automatically generated", key))
+			}
+		} 
+		if (i == (len(key)-1)) {
+			traversal[k] = new_val
+			break
+		} else {
+			traversal = CastInterfaceToObj(next_obj)
+		}
+	}
+
+	return new_obj
 }
 
 /*
