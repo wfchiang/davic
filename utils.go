@@ -77,7 +77,7 @@ func CastInterfaceToArray (value interface{}) []interface{} {
 func CastInterfaceToObj (value interface{}) map[string]interface{} {
 	obj_value, ok := value.(map[string]interface{})
 	if (!ok) {
-		panic("CastInterfaceToObj failed")
+		panic(fmt.Sprintf("CastInterfaceToObj failed. Value: %v", value))
 	}
 	return obj_value
 }

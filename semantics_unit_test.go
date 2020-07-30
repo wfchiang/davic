@@ -165,6 +165,22 @@ func TestEvalExpr8 (t *testing.T) {
 	simpleTestingAssert(t, TYPE_STRING, "123", eval_result)
 }
 
+func TestEvalExprObjUpdate0 (t *testing.T) {
+	defer simpleRecover(t)
+
+	env := CreateNewEnvironment()
+
+	old_obj := map[string]interface{}{"abc": 1.0, "xyz": "123"}
+	expr := []interface{}{SYMBOL_OPT_MARK, OPT_OBJ_UPDATE, old_obj, []interface{}{"abc"}, "def"}
+	new_obj := CastInterfaceToObj(EvalExpr(env, expr))
+	simpleTestingAssert(t, TYPE_NUMBER, 1.0, old_obj["abc"])
+	simpleTestingAssert(t, TYPE_STRING, "def", new_obj["abc"])
+
+	expr = []interface{}{SYMBOL_OPT_MARK, OPT_OBJ_UPDATE, new_obj, []interface{}{"xyz"}, map[string]interface{}{"xxx": "yyy"}}
+	new_obj = CastInterfaceToObj(EvalExpr(env, expr))
+	simpleTestingAssert(t, TYPE_STRING, "yyy", CastInterfaceToObj(new_obj["xyz"])["xxx"])
+}
+
 func TestEvalExpr9 (t *testing.T) {
 	defer simpleExpectPanic(t) 
 

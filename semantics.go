@@ -255,7 +255,7 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 		} 
 
 		http_client := &http.Client{}
-		http_reqt := CastInterfaceToObj(operation[2])
+		http_reqt := CastInterfaceToObj(EvalExpr(env, operation[2]))
 		
 		http_resp := MakeHttpCall(http_client, http_reqt)
 
