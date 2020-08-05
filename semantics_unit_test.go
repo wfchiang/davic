@@ -343,6 +343,13 @@ func TestEvalExpr17 (t *testing.T) {
 	val1 := EvalExpr(env1, opt_store_read)
 	simpleTestingAssert(t, TYPE_BOOL, false, val0)
 	simpleTestingAssert(t, TYPE_BOOL, true, val1)
+
+	opt_store_delete := []interface{}{SYMBOL_OPT_MARK, OPT_STORE_DELETE, "keyB"} 
+	env2 := EvalExpr(env1, opt_store_delete).(Environment)
+	_, ok1 := env1.Store["keyB"]
+	_, ok2 := env2.Store["keyB"]
+	simpleTestingAssert(t, TYPE_BOOL, true, ok1)
+	simpleTestingAssert(t, TYPE_BOOL, false, ok2)
 }
 
 func TestEvalExpr18 (t *testing.T) {

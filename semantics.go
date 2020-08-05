@@ -39,8 +39,7 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 		if (!IsType(TYPE_STRING, opd)) {
 			panic(fmt.Sprintf("Invalid type of the store-read operation: %v", operation))
 		}
-		str_opd := CastInterfaceToString(opd)
-		return env.ReadStore(str_opd)
+		return env.ReadStore(CastInterfaceToString(opd))
 
 	} else if (strings.Compare(OPT_STORE_WRITE, opt) == 0) {
 		operation, ok = IsBinaryOperation(in_expr)
@@ -56,6 +55,18 @@ func EvalExpr (env Environment, in_expr interface{}) interface{} {
 		// Here we will return an Environment -- since a Store-Write operation will change the environment... 
 		return env.WriteStore(str_vkey, sval)
 	
+	} else if (strings.Compare(OPT_STORE_DELETE, opt) == 0) {
+		operation, ok = IsUnaryOperation(in_expr)
+		if (!ok) {
+			panic(fmt.Sprintf("Invalid store-delete operation: %v", operation))
+		}
+		opd := EvalExpr(env, operation[2])
+		if (!IsType(TYPE_STRING, opd)) {
+			panic(fmt.Sprintf("Invalid type of the store-delete operation: %v", operation))
+		}
+		// Here we will return an Environment -- since a Store-Delete operation will change the environment... 
+		return env.DeleteStore(CastInterfaceToString(opd))
+
 	} else if (strings.Compare(OPT_RELATION_EQ, opt) == 0) {
 		operation, ok = IsBinaryOperation(in_expr)
 		if (!ok) {

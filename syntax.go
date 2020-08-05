@@ -26,6 +26,7 @@ const (
 
 	OPT_STORE_READ = "-store-read-"
 	OPT_STORE_WRITE = "-store-write-"
+	OPT_STORE_DELETE = "-store-delete-"
 	OPT_STACK_READ = "-stack-read-"
 	OPT_LAMBDA = "-lambda-"
 	OPT_FUNC_CALL = "-fcall-"
@@ -351,6 +352,18 @@ func (env Environment) ReadStore (vkey string) interface{} {
 		panic("Environment is corruptted -- the Store is not an object")
 	}
 	return ReadObjValue(env.Store, []string{vkey})
+}
+
+func (env Environment) DeleteStore (vkey string) Environment {
+	if (!IsType(TYPE_OBJ, env.Store)) {
+		panic("Environment is corruptted -- the Store is not an object")
+	}
+	new_env := env.Clone() 
+	if (!IsType(TYPE_OBJ, new_env.Store)) {
+		panic("Environment (the clone) is corruptted -- the Store is not an object")
+	}
+	delete(new_env.Store, vkey)
+	return new_env 
 }
 
 func (env Environment) Deref (in_ref interface{}) interface{} {
