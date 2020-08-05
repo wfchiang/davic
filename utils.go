@@ -29,7 +29,7 @@ Casting utils
 func CastNumberToInt (value float64) int {
 	int_value := int(value)
 	if (float64(int_value) != value) {
-		panic("Inprecise CastNumberToInt")
+		panic(fmt.Sprintf("Inprecise CastNumberToInt: %v", value))
 	}
 	return int_value
 }
@@ -37,7 +37,7 @@ func CastNumberToInt (value float64) int {
 func CastInterfaceToBool (value interface{}) bool {
 	bool_value, ok := value.(bool)
 	if (!ok) {
-		panic("CastInterfaceToBool failed")
+		panic(fmt.Sprintf("CastInterfaceToBool failed: %v", value))
 	}
 	return bool_value
 }
@@ -45,7 +45,7 @@ func CastInterfaceToBool (value interface{}) bool {
 func CastInterfaceToNumber (value interface{}) float64 {
 	float64_value, ok := value.(float64)
 	if (!ok) {
-		panic("CastInterfaceToNumber failed")
+		panic(fmt.Sprintf("CastInterfaceToNumber failed: %v", value))
 	}
 	return float64_value
 }
@@ -53,7 +53,7 @@ func CastInterfaceToNumber (value interface{}) float64 {
 func CastInterfaceToInt (value interface{}) int {
 	int_value, ok := value.(int)
 	if (!ok) {
-		panic("CastInterfaceToInt failed")
+		panic(fmt.Sprintf("CastInterfaceToInt failed: %v", value))
 	}
 	return int_value
 }
@@ -69,7 +69,7 @@ func CastInterfaceToString (value interface{}) string {
 func CastInterfaceToArray (value interface{}) []interface{} {
 	array_value, ok := value.([]interface{})
 	if (!ok) {
-		panic("CastInterfaceToArray failed")
+		panic(fmt.Sprintf("CastInterfaceToArray failed: %v", value))
 	}
 	return array_value
 }
@@ -77,7 +77,7 @@ func CastInterfaceToArray (value interface{}) []interface{} {
 func CastInterfaceToObj (value interface{}) map[string]interface{} {
 	obj_value, ok := value.(map[string]interface{})
 	if (!ok) {
-		panic(fmt.Sprintf("CastInterfaceToObj failed. Value: %v", value))
+		panic(fmt.Sprintf("CastInterfaceToObj failed: %v", value))
 	}
 	return obj_value
 }
