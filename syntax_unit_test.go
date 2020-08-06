@@ -245,16 +245,26 @@ func TestEnvironmentStore1 (t *testing.T) {
 	env0 := CreateNewEnvironment()
 	env1 := env0.WriteStore(my_key, my_wife) 
 	wife := env1.ReadStore(my_key)
-	if (simpleIsViolation(TYPE_STRING, my_wife, wife)) {
-		t.Error("")
-	}
+	simpleTestingAssert(t, TYPE_STRING, my_wife, wife) 
 
 	wrong_wife := "wei-fan"
 	env2 := env1.WriteStore(my_key, wrong_wife)
 	wife = env2.ReadStore(my_key)
-	if (simpleIsViolation(TYPE_STRING, wrong_wife, wife)) {
-		t.Error("")
-	}
+	simpleTestingAssert(t, TYPE_STRING, wrong_wife, wife)
+}
+
+func TestEnvironmentStore2 (t *testing.T) {
+	defer simpleRecover(t)
+
+	env0 := CreateNewEnvironment() 
+	env0 = env0.WriteStore("wife", "Jenny") 
+	simpleTestingAssert(t, TYPE_STRING, env0.ReadStore("wife"), "Jenny")
+
+	env1 := env0.DeleteStore("wife")
+	_, ok0 := env0.Store["wife"]
+	_, ok1 := env1.Store["wife"]
+	simpleTestingAssert(t, TYPE_BOOL, true, ok0)
+	simpleTestingAssert(t, TYPE_BOOL, false, ok1) 
 }
 
 func TestEnvironmentStack0 (t *testing.T) {
