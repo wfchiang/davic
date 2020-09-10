@@ -23,5 +23,6 @@ I should say this at the beginning: program/script is data, at the first place.
 
 Here are some example usages of **Davic** (more are coming) 
 * [REST-mocker](https://github.com/wfchiang/davic-sample-apps/tree/master/rest-mocker). A mock RESTful service which can be defined "what to mock" **at runtime**. 
+* [Data-conductor](https://github.com/wfchiang/davic-sample-apps/tree/master/data-conductor). A RESTful service which pulls data from other services and returns the selected values based on what you specify **at runtime**. 
 
 Here is a tool set that helps you write scripts in JSON: [Davic-helper](https://github.com/wfchiang/davic-helpers). 

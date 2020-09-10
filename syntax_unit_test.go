@@ -4,6 +4,28 @@ import (
 	"testing"
 )
 
+func TestCreateArrayFromBytes (t *testing.T) {
+	defer simpleRecover(t)
+
+	bytes_arr := []byte("[false, true]")
+	arr := CreateArrayFromBytes(bytes_arr)
+	simpleTestingAssert(t, TYPE_BOOL, true, arr[1])
+
+	bytes_arr = []byte("[\"123\", {\"abc\": \"xyz\"}]")
+	arr = CreateArrayFromBytes(bytes_arr)
+	simpleTestingAssert(t, TYPE_STRING, "123", arr[0])
+	simpleTestingAssert(t, TYPE_BOOL, true, IsType(TYPE_OBJ, arr[1]))
+	simpleTestingAssert(t, TYPE_STRING, "xyz", CastInterfaceToObj(arr[1])["abc"])
+}
+
+func TestCreateObjFromBytes (t *testing.T) {
+	defer simpleRecover(t)
+
+	bytes_obj := []byte("{\"abc\": \"xyz\"}")
+	obj := CreateObjFromBytes(bytes_obj)
+	simpleTestingAssert(t, TYPE_STRING, "xyz", obj["abc"])
+}
+
 func TestIsType0 (t *testing.T) {
 	defer simpleRecover(t) 
 

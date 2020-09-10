@@ -91,6 +91,12 @@ func IsRef (ref []string) bool {
 	return (strings.Compare(SYMBOL_REF_MARK, ref[0]) == 0)
 }
 
+func CreateArrayFromBytes (byte_array []byte) []interface{} {
+	var new_arr []interface{}
+	json.Unmarshal(byte_array, &new_arr)
+	return new_arr
+}
+
 func CreateObjFromBytes (byte_array []byte) map[string]interface{} {
 	var new_jnode map[string]interface{}
 	json.Unmarshal(byte_array, &new_jnode)
